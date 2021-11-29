@@ -23,8 +23,8 @@ def get_postcode_data(key, postcode):
     :return: None
     """
     response = requests.get(url, params={'postcode':postcode}, headers={ 'Authorization' : 'Basic %s' % key, "Accept":'text/csv'})
-    csvfile = open('epc_'+postcode + '.csv', 'w')
-    writer = csv.writer(csvfile, delimiter=' ')
+    csvfile = open('epc_'+postcode + '.csv', 'w', encoding='UTF8', newline='')
+    writer = csv.writer(csvfile, delimiter=' ', quotechar='|')
     for row in response.text.split('\n'):
         writer.writerow(row)
 
@@ -35,3 +35,4 @@ postcode = 'CH1'
 get_postcode_data(encoded_api_key,postcode)
 
 
+response = requests.get(url, params={'postcode':postcode}, headers={ 'Authorization' : 'Basic %s' % encoded_api_key, "Accept":'text/csv'})
