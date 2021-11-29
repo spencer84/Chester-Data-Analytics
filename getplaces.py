@@ -7,11 +7,9 @@ import pandas as pd
 ### Use .gitignore to hide JSON file
 with open('API Key.json') as f:
     api_key = json.loads(f.read())
-key = api_key[0]['os']
+key = api_key['os']
 url = 'https://api.os.uk/search/places/v1/postcode'  # URL for the Places API
 
-### Set the postcode be queried
-postcode = 'CH1'
 # Define a function to query the OS Places API and paginate through all results
 
 def postcode_query(url, key, postcode, offset):
@@ -53,6 +51,10 @@ def full_query_postcode(url, key, postcode, throttle = True):
             break
         response = postcode_query(url, key, postcode, count)  # Set the offset then re-run fo next 100 results
     return full_results
+
+### Set the postcode be queried
+postcode = 'CH1'
+
 results = full_query_postcode(url, key, postcode)
 
 ### Write this result dictionary to a csv file
@@ -61,4 +63,4 @@ df = pd.DataFrame.from_dict({(i,j): results[i][j]
                            for j in results[i].keys()},
                        orient='index')
 ### Write the dataframe to a CSV file
-df.to_csv(postcode+'.csv')
+df.to_csv('places_'+postcode+'.csv')
