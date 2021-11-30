@@ -8,12 +8,12 @@ postcode = 'CH1'
 epc =  pd.read_csv('epc_'+postcode+'.csv')
 
 ### Import places data
-places =  pd.read_csv('places'+postcode+'.csv')
+places =  pd.read_csv('places_'+postcode+'.csv')
 
 epc.head()
 
 places.head()
 
-# df = pd.merge(places, epc, how = 'left', left_on = '', right_on = '')
+df = pd.merge(places, epc, how = 'left', left_on = 'UPRN', right_on = 'uprn')
 
 

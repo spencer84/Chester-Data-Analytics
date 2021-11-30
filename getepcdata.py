@@ -16,17 +16,20 @@ encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:
 #encoded_api_key = 'c2FtOTVAdnQuZWR1OjkzMzUyZDQ2N2I5YjU3YmZkNTNmZjBkMGQ1NzFlNjVhMjUyOWZiMzc='
 #,'Accept':'application/json'
 
+
 def get_postcode_data(key, postcode):
     """" Writes a CSV containing all results for the given postcode to the local directory
     :param key: Encoded secret key for the OS API
     :param postcode: Any UK Postcode or the first part (district portion)
     :return: None
     """
-    response = requests.get(url, params={'postcode':postcode}, headers={ 'Authorization' : 'Basic %s' % key, "Accept":'text/csv'})
-    csvfile = open('epc_'+postcode + '.csv', 'w', encoding='UTF8', newline='')
-    writer = csv.writer(csvfile, delimiter=' ', quotechar='|')
-    for row in response.text.split('\n'):
-        writer.writerow(row)
+    response = requests.get(url, params={'postcode':postcode,'size':5000}, headers={ 'Authorization' : 'Basic %s' % key, "Accept":'text/csv'})
+    response_content = response.content.decode('utf-8')
+    cr = csv.reader(response_content.splitlines(), delimiter=',')
+    csvfile = open('epc_' + postcode + '.csv', 'w', encoding='UTF8', newline='')
+    writer = csv.writer(csvfile)
+    writer.writerows(cr)
+
 
 # Select postcode to search by
 postcode = 'CH1'
