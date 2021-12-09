@@ -16,4 +16,5 @@ places.head()
 
 df = pd.merge(places, epc, how = 'left', left_on = 'UPRN', right_on = 'uprn')
 
+df['construction-age-band'].head()
 

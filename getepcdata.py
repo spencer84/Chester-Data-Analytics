@@ -31,6 +31,22 @@ def get_postcode_data(key, postcode):
     writer.writerows(cr)
 
 
+# Need to re-write this so that the query pulls all results, not just the first page of results
+results = []
+results_not_reached = True
+total_count = 0
+while results_not_reached:
+    response = requests.get(url, params={'postcode': postcode, 'size': 5000,'from':total_count}, headers={'Authorization': 'Basic %s' % key, "Accept": 'json'})
+    count = 0
+    for i in response.json()['results']:
+        results.append()
+        count += 1
+    if count < 5000: # The idea here is that if the response
+        results_not_reached = False
+    total_count += count
+results = pd.DataFrame(results) # This format obviously won't work, but once the loop breaks, convert the parsed ...
+# results to a Pandas dataframe which can then easily be written to a file.
+return results
 # Select postcode to search by
 postcode = 'CH1'
 
