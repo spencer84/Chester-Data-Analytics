@@ -18,3 +18,7 @@ df = pd.merge(places, epc, how = 'left', left_on = 'UPRN', right_on = 'uprn')
 
 df['construction-age-band'].head()
 
+# Useful data for determining the year built estimation:
+#lat and long, building type, postcode,
+
+len(places)
