@@ -13,25 +13,30 @@ url = 'https://epc.opendatacommunities.org/api/v1/domestic/search'  # URL for th
 
 # Need to encode the username and key then strip off the extra bits
 encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
+
+
 # encoded_api_key = 'c2FtOTVAdnQuZWR1OjkzMzUyZDQ2N2I5YjU3YmZkNTNmZjBkMGQ1NzFlNjVhMjUyOWZiMzc='
 # 'Accept':'application/json'
 
 
 def get_postcode_data(key, postcode):
-    """" Writes a CSV containing all results for the given postcode to the local directory
+    """" Returns a pandas dataframe containing all results for the given postcode.
+    This can be written to a CSV file for later processing.
     :param key: Encoded secret key for the OS API
     :param postcode: Any UK Postcode or the first part (district portion)
     :return: Pandas Dataframe of EPC results
     """
     # Can only paginate through the first 10,000 results of any query. Need to use energy bands (or other parameter)
     # to break up the query.
-    energy_bands = ['a','b','c','d','e','f','g']
+    energy_bands = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
     results = []
     for band in energy_bands:
         results_not_reached = True
         total_count = 0
         while results_not_reached:
-            response = requests.get(url, params={'postcode': postcode, 'size': 5000, 'from': total_count, 'energy-band': band}, headers={'Authorization': 'Basic %s' % key, "Accept": 'application/json'})
+            response = requests.get(url, params={'postcode': postcode, 'size': 5000, 'from': total_count,
+                                                 'energy-band': band},
+                                    headers={'Authorization': 'Basic %s' % key, "Accept": 'application/json'})
             results += response.json()['rows']
             count = len(response.json()['rows'])
             if count < 5000:  # The idea here is that if the response
@@ -41,12 +46,11 @@ def get_postcode_data(key, postcode):
     return results
 
 
-
 # Select postcode to search by
 postcode = 'CH1'
 
 # Call the function
-results = get_postcode_data(encoded_api_key,postcode)
+results = get_postcode_data(encoded_api_key, postcode)
 
-
-response = requests.get(url, params={'postcode':postcode}, headers={ 'Authorization' : 'Basic %s' % encoded_api_key, "Accept":'text/csv'})
+# Write to CSV
+results.to_csv(postcode + '.csv')
