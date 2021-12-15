@@ -53,4 +53,4 @@ postcode = 'CH1'
 results = get_postcode_data(encoded_api_key, postcode)
 
 # Write to CSV
-results.to_csv(postcode + '.csv')
+results.to_csv('epc_' +postcode + '.csv')
