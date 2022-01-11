@@ -73,4 +73,8 @@ clf = neighbors.KNeighborsClassifier(optimal_k, weights="distance")
 
 clf.fit(training_df[['X_COORDINATE', 'Y_COORDINATE']], training_df['construction-age-band'])
 
+# Create a new column for the estimated age bands and one for the confidence of those estimates
 missing_age_df['construction-age-band-estimated'] = pd.Series(clf.predict(missing_age_df[['X_COORDINATE', 'Y_COORDINATE']]))
+missing_age_df['construction-age-band-estimated-confidence'] = pd.Series(clf.predict_proba(missing_age_df[['X_COORDINATE', 'Y_COORDINATE']]))
+
+output = pd.concat(df, missing_age_df, axis=1)
