@@ -1,10 +1,17 @@
 import requests
 
-url = 'http://landregistry.data.gov.uk/data/ppi/address.json'
+url = 'https://landregistry.data.gov.uk/data/ppi/transaction-record.json?'
+properties = 'transactionId,transactionDate,pricePaid,propertyAddress.paon,propertyAddress.street'
 
-
-def price_paid_query(postcode, street):
-    response = requests.get(url, params={'street':street,'postcode': postcode})
+test_post_code = 'CH1 1HD'
+params_lr = {'_pageSize':200,
+                     '_view':'basic',
+                     '_properties':properties,
+                     'propertyAddress.postcode':test_post_code}
+def price_paid_query(params_lr):
+    response = requests.get(url, params=params_lr)
     return response
 
-test = price_paid_query('CH1', 'Abbots Nook')
+test = price_paid_query(params_lr)
+
+test.json()
