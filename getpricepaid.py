@@ -30,16 +30,21 @@ df.columns = col_names
 
 page = 0
 df = pd.DataFrame()
+
 def get_full_price_paid(df, page, params_lr):
-    print(page)
     data = price_paid_query(params_lr)
     data = data.json()['result']['items']
     params_lr['_page'] = page
     df = pd.concat([df, pd.json_normalize(data)])
-    if len(data) == 200:
+    if len(data) == 200: # Recursion until a page length less than max achieved
         page += 1
         get_full_price_paid(df, page, params_lr)
+    # When running the code the length appears to increase
+    # But the final output only yields 200 results?
     return df
 
 df = get_full_price_paid(df, page, params_lr)
+
+## Paginating through the results for an entire town works, but is slow
+## Is there a way to find out if a postcode contains a district?
 
