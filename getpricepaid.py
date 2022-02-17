@@ -26,6 +26,20 @@ df = pd.json_normalize(data)
 col_names = ['url', 'Price Paid','Transaction Date', 'Transaction Id', 'Type', 'About','PAON', 'Street Name']
 df.columns = col_names
 
-### Changed to query all results from a given town
+## Recursively paginate through results
 
-## Need to paginate through all results -- how to find out how many pages?
+page = 0
+df = pd.DataFrame()
+def get_full_price_paid(df, page, params_lr):
+    print(page)
+    data = price_paid_query(params_lr)
+    data = data.json()['result']['items']
+    params_lr['_page'] = page
+    df = pd.concat([df, pd.json_normalize(data)])
+    if len(data) == 200:
+        page += 1
+        get_full_price_paid(df, page, params_lr)
+    return df
+
+df = get_full_price_paid(df, page, params_lr)
+
