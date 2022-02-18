@@ -44,6 +44,10 @@ df = get_full_price_paid(df, page, params_lr)
 ## Change column names
 col_names = ['url', 'Price Paid','Transaction Date', 'Transaction Id', 'Type', 'About','PAON', 'Street Name']
 df.columns = col_names
+
+## Output
+df.to_csv('price_paid_'+town+'.csv')
+
 ## Paginating through the results for an entire town works, but is slow
 ## Is there a way to find out if a postcode contains a district?
 
