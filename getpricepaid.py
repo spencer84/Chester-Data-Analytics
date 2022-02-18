@@ -22,10 +22,6 @@ data = data.json()['result']['items']
 ## Convert json to dataframe
 df = pd.json_normalize(data)
 
-## Change column names
-col_names = ['url', 'Price Paid','Transaction Date', 'Transaction Id', 'Type', 'About','PAON', 'Street Name']
-df.columns = col_names
-
 ## Recursively paginate through results
 
 page = 0
@@ -38,13 +34,16 @@ def get_full_price_paid(df, page, params_lr):
     df = pd.concat([df, pd.json_normalize(data)])
     if len(data) == 200: # Recursion until a page length less than max achieved
         page += 1
-        get_full_price_paid(df, page, params_lr)
+        df = get_full_price_paid(df, page, params_lr)
     # When running the code the length appears to increase
     # But the final output only yields 200 results?
     return df
 
 df = get_full_price_paid(df, page, params_lr)
 
+## Change column names
+col_names = ['url', 'Price Paid','Transaction Date', 'Transaction Id', 'Type', 'About','PAON', 'Street Name']
+df.columns = col_names
 ## Paginating through the results for an entire town works, but is slow
 ## Is there a way to find out if a postcode contains a district?
 
