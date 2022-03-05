@@ -24,11 +24,11 @@ def PostcodeGeocode(postcodes):
             end += 100
             if len(postcodes)-start < 100:
                 end = len(postcodes)
-        return zip(lat, long)
+        return lat, long
     else:
         results = requests.post(endpoint, {"postcodes":postcodes}).json()
         # Parse results
         for i in results['result']:
             lat.append(i['result']['latitude'])
             long.append(i['result']['longitude'])
-        return zip(lat, long)
+        return lat, long
