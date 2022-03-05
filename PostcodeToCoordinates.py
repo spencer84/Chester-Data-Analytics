@@ -13,15 +13,18 @@ def PostcodeGeocode(postcodes):
     if len(postcodes)>100:
         start = 0
         end = 100
-        batch = postcodes[start:end]
         while start < len(postcodes):
-            results = requests.post(endpoint, {"postcodes": postcodes}).json()
+            batch = postcodes[start:end]
+            results = requests.post(endpoint, {"postcodes": batch}).json()
             # Parse results
             for i in results['result']:
                 lat.append(i['result']['latitude'])
                 long.append(i['result']['longitude'])
             start += 100
             end += 100
+            if len(postcodes)-start < 100:
+                end = len(postcodes)
+        return zip(lat, long)
     else:
         results = requests.post(endpoint, {"postcodes":postcodes}).json()
         # Parse results
@@ -29,7 +32,3 @@ def PostcodeGeocode(postcodes):
             lat.append(i['result']['latitude'])
             long.append(i['result']['longitude'])
         return zip(lat, long)
-
-
-
-
