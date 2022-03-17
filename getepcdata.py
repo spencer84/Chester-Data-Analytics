@@ -2,6 +2,7 @@ import requests
 import json
 import base64
 import pandas as pd
+import sqlite3
 
 # Retrieve OS Maps API Key
 # Use .gitignore to hide JSON file
