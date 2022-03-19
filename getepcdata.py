@@ -61,12 +61,29 @@ cur = con.cursor()
 cur.execute('''CREATE TABLE IF NOT EXISTS epc 
             (address text,postcode text, current_energy_rating text, total_floor_area real, query_date text
             )''')
+# Create a string variable for the current datetime
 curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+# Iterate through the results dataframe, adding each value
 for index, row in results.iterrows():
     cur.execute("INSERT INTO epc VALUES(?,?,?,?,?)",(row.address,row['postcode'],row['current-energy-rating'],row['total-floor-area'],curr_time))
-cur.execute("SELECT * FROM epc")
+cur.execute("SELECT * FROM epc WHERE postcode = 'CH1 5NL'")
 rows = cur.fetchall()
-cur.execute('''DROP TABLE epc''')
+print(rows)
+
+# Drop duplicate records based on the most recent query_date
+cur.execute("DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc)")
+rows = cur.fetchall()
+print(rows)
+# Commit the changes to save all updates
+
+cur.execute("COMMIT;")
+
+# Close the connection
+
+cur.close()
+
+
 # cur.execute('''CREATE TABLE IF NOT EXISTS epc
 #                (lmk_key text, address1 text, address2 text, address3 text,
 #                 building_reference_number text, current_energy_rating text,	potential_energy_rating text,
