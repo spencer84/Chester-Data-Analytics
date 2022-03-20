@@ -67,12 +67,17 @@ curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 # Iterate through the results dataframe, adding each value
 for index, row in results.iterrows():
     cur.execute("INSERT INTO epc VALUES(?,?,?,?,?)",(row.address,row['postcode'],row['current-energy-rating'],row['total-floor-area'],curr_time))
-cur.execute("SELECT * FROM epc WHERE postcode = 'CH1 5NL'")
+
+# Test for edge cases
+cur.execute("SELECT * FROM epc WHERE address = '12, Hillside Road, Blacon'")
 rows = cur.fetchall()
 print(rows)
-
 # Drop duplicate records based on the most recent query_date
-cur.execute("DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc)")
+# Is the address the best variable to filter by? In the test case above, there are two entries for the same address...
+cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
+            (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")
+
+
 rows = cur.fetchall()
 print(rows)
 # Commit the changes to save all updates
