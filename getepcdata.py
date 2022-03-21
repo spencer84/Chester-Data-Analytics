@@ -54,19 +54,21 @@ results = get_postcode_data(encoded_api_key, postcode)
 con = sqlite3.connect('cda.db')
 cur = con.cursor()
 
-
 # Initialise the table if not already done
 # Let's start with a smaller one with a few key values
 # Query date is reflective of the date the data is requested
 cur.execute('''CREATE TABLE IF NOT EXISTS epc 
-            (address text, address1 text ,uprn text,postcode text, current_energy_rating text, total_floor_area real,lodgement_datetime text, query_date text
+            (address text, address1 text ,uprn text,postcode text, current_energy_rating text, total_floor_area real,
+            lodgement_datetime text, query_date text
             )''')
 # Create a string variable for the current datetime
 curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # Iterate through the results dataframe, adding each value
 for index, row in results.iterrows():
-    cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)",(row.address,row.address1,row.uprn,row['postcode'],row['current-energy-rating'],row['total-floor-area'],row['lodgement-datetime'],curr_time))
+    cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, row['postcode'],
+                                                            row['current-energy-rating'], row['total-floor-area'],
+                                                            row['lodgement-datetime'], curr_time))
 
 # Test for edge cases
 cur.execute("SELECT * FROM epc WHERE address = '12, Hillside Road, Blacon'")
@@ -87,12 +89,11 @@ INNER JOIN
 ON
   epc.address = latest_record.address AND
   epc.lodgement_datetime = latest_record.most_recent_epc)""")
-cur.execute("DROP TABLE epc")
+# cur.execute("DROP TABLE epc")
 # Drop duplicate records based on the most recent query_date
 # Is the address the best variable to filter by? In the test case above, there are two entries for the same address...
 cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
             (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")
-
 
 rows = cur.fetchall()
 print(rows)
@@ -103,7 +104,6 @@ cur.execute("COMMIT;")
 # Close the connection
 
 cur.close()
-
 
 # cur.execute('''CREATE TABLE IF NOT EXISTS epc
 #                (lmk_key text, address1 text, address2 text, address3 text,
@@ -142,4 +142,4 @@ con.commit()
 # We can also close the connection if we are done with it.
 # Just be sure any changes have been committed or they will be lost.
 con.close()
-#results.to_csv('epc_' +postcode + '.csv')
+# results.to_csv('epc_' +postcode + '.csv')
