@@ -59,19 +59,35 @@ cur = con.cursor()
 # Let's start with a smaller one with a few key values
 # Query date is reflective of the date the data is requested
 cur.execute('''CREATE TABLE IF NOT EXISTS epc 
-            (address text,postcode text, current_energy_rating text, total_floor_area real, query_date text
+            (address text, address1 text ,uprn text,postcode text, current_energy_rating text, total_floor_area real,lodgement_datetime text, query_date text
             )''')
 # Create a string variable for the current datetime
 curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # Iterate through the results dataframe, adding each value
 for index, row in results.iterrows():
-    cur.execute("INSERT INTO epc VALUES(?,?,?,?,?)",(row.address,row['postcode'],row['current-energy-rating'],row['total-floor-area'],curr_time))
+    cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)",(row.address,row.address1,row.uprn,row['postcode'],row['current-energy-rating'],row['total-floor-area'],row['lodgement-datetime'],curr_time))
 
 # Test for edge cases
 cur.execute("SELECT * FROM epc WHERE address = '12, Hillside Road, Blacon'")
 rows = cur.fetchall()
 print(rows)
+# How to handle multiple EPC records on same property? Take most recent
+cur.execute("""DELETE FROM epc where (address, lodgement_datetime) NOT IN (SELECT 
+  epc.address, epc.lodgement_datetime
+FROM
+  (SELECT
+     address, MAX(lodgement_datetime) AS most_recent_epc
+   FROM
+     epc
+   GROUP BY
+     address) AS latest_record
+INNER JOIN
+  epc
+ON
+  epc.address = latest_record.address AND
+  epc.lodgement_datetime = latest_record.most_recent_epc)""")
+cur.execute("DROP TABLE epc")
 # Drop duplicate records based on the most recent query_date
 # Is the address the best variable to filter by? In the test case above, there are two entries for the same address...
 cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
