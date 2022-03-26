@@ -5,19 +5,32 @@ import pandas as pd
 import sqlite3
 import datetime
 
-# Retrieve OS Maps API Key
+# Retrieve EPC API Key
 # Use .gitignore to hide JSON file
-with open('API Key.json') as f:
-    api_key = json.loads(f.read())
-key = api_key['epc_key']
-username = api_key['epc_username']
-url = 'https://epc.opendatacommunities.org/api/v1/domestic/search'  # URL for the Places API
 
-# Need to encode the username and key then strip off the extra bits
-encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
+# Set path to the API key/username
+path = 'API Key.json'
+
+url = 'https://epc.opendatacommunities.org/api/v1/domestic/search'  # URL endpoint for the EPC API
 
 
-def get_postcode_data(key, postcode):
+def get_key_usr(path):
+    """
+    This is to retrive a stored key and username combination to access the EPC API.
+    These values are stored in a JSON file in a local directory and hidden by the .gitignore to avoid
+    making these public. The key is then encoded as per the EPC documentation.
+    :param path: Relative location of JSON file with epc username and key
+    :return: Tuple - (username, key)
+    """
+    with open(path) as f:
+        api_key = json.loads(f.read())
+    key = api_key['epc_key']
+    username = api_key['epc_username']
+    # Need to encode the username and key then strip off the extra bits
+    encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
+    return (username, encoded_api_key)
+
+def get_postcode_epc_data(key, postcode):
     """" Returns a pandas dataframe containing all results for the given postcode.
     This can be written to a CSV file for later processing.
     :param key: Encoded secret key for the OS API
@@ -27,6 +40,7 @@ def get_postcode_data(key, postcode):
     # Can only paginate through the first 10,000 results of any query. Need to use energy bands (or other parameter)
     # to break up the query.
     energy_bands = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+
     results = []
     for band in energy_bands:
         results_not_reached = True
@@ -41,6 +55,12 @@ def get_postcode_data(key, postcode):
                 results_not_reached = False
             total_count += count
     results = pd.DataFrame(data=results, columns=response.json()['column-names'])
+    # Need to write these results to the database
+    curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # Write to DB
+    con = sqlite3.connect('cda.db')
+    cur = con.cursor()
+
     return results
 
 
@@ -50,9 +70,7 @@ postcode = 'CH1'
 # Call the function
 results = get_postcode_data(encoded_api_key, postcode)
 
-# Write to DB
-con = sqlite3.connect('cda.db')
-cur = con.cursor()
+
 
 # Initialise the table if not already done
 # Let's start with a smaller one with a few key values
