@@ -1,6 +1,8 @@
 import getepcdata as epc
 import sqlite3
 
+# Define path for API keys JSON file
+path = 'API Key.json'
 # Create a class for a property
 class Property:
     def __init__(self):
@@ -28,7 +30,7 @@ class Property:
         results  = cur.execute("SELECT * FROM data_log WHERE postcode_district =? ",(self.postcode_district,))
         # Is there data from both the EPC and Land Registry within the last Month?
         if len(results) == 0:
-            epc.get_postcode_data(key, self.postcode)
+            epc.get_postcode_data(epc.get_key(path), self.postcode)
 
 
 #

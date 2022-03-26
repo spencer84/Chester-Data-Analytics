@@ -14,13 +14,13 @@ path = 'API Key.json'
 url = 'https://epc.opendatacommunities.org/api/v1/domestic/search'  # URL endpoint for the EPC API
 
 
-def get_key_usr(path):
+def get_key(path):
     """
-    This is to retrive a stored key and username combination to access the EPC API.
+    This is to retrieve a stored key and username combination to access the EPC API.
     These values are stored in a JSON file in a local directory and hidden by the .gitignore to avoid
     making these public. The key is then encoded as per the EPC documentation.
     :param path: Relative location of JSON file with epc username and key
-    :return: Tuple - (username, key)
+    :return: key (Encoded)
     """
     with open(path) as f:
         api_key = json.loads(f.read())
@@ -28,11 +28,13 @@ def get_key_usr(path):
     username = api_key['epc_username']
     # Need to encode the username and key then strip off the extra bits
     encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
-    return (username, encoded_api_key)
+    return encoded_api_key
 
 def get_postcode_epc_data(key, postcode):
     """" Returns a pandas dataframe containing all results for the given postcode.
     This can be written to a CSV file for later processing.
+    Maximum size of GET response is 5000, therefore, this function breaks the query into multiple GET requests for
+    each energy band
     :param key: Encoded secret key for the OS API
     :param postcode: Any UK Postcode or the first part (district portion)
     :return: Pandas Dataframe of EPC results
@@ -40,7 +42,6 @@ def get_postcode_epc_data(key, postcode):
     # Can only paginate through the first 10,000 results of any query. Need to use energy bands (or other parameter)
     # to break up the query.
     energy_bands = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-
     results = []
     for band in energy_bands:
         results_not_reached = True
@@ -60,8 +61,33 @@ def get_postcode_epc_data(key, postcode):
     # Write to DB
     con = sqlite3.connect('cda.db')
     cur = con.cursor()
-
-    return results
+    # Iterate through the results dataframe, adding each value
+    for index, row in results.iterrows():
+        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, row['postcode'],
+                                                                row['current-energy-rating'], row['total-floor-area'],
+                                                                row['lodgement-datetime'], curr_time))
+    # Is this redundant based on below code?
+    cur.execute("""DELETE FROM epc where (address, lodgement_datetime) NOT IN (SELECT 
+      epc.address, epc.lodgement_datetime
+    FROM
+      (SELECT
+         address, MAX(lodgement_datetime) AS most_recent_epc
+       FROM
+         epc
+       GROUP BY
+         address) AS latest_record
+    INNER JOIN
+      epc
+    ON
+      epc.address = latest_record.address AND
+      epc.lodgement_datetime = latest_record.most_recent_epc)""")
+    # cur.execute("DROP TABLE epc")
+    # Drop duplicate records based on the most recent query_date
+    cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
+                (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")
+    con.commit()
+    con.close()
+    return
 
 
 # Select postcode to search by
@@ -82,36 +108,11 @@ cur.execute('''CREATE TABLE IF NOT EXISTS epc
 # Create a string variable for the current datetime
 curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-# Iterate through the results dataframe, adding each value
-for index, row in results.iterrows():
-    cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, row['postcode'],
-                                                            row['current-energy-rating'], row['total-floor-area'],
-                                                            row['lodgement-datetime'], curr_time))
-
 # Test for edge cases
 cur.execute("SELECT * FROM epc WHERE address = '12, Hillside Road, Blacon'")
 rows = cur.fetchall()
 print(rows)
 # How to handle multiple EPC records on same property? Take most recent
-cur.execute("""DELETE FROM epc where (address, lodgement_datetime) NOT IN (SELECT 
-  epc.address, epc.lodgement_datetime
-FROM
-  (SELECT
-     address, MAX(lodgement_datetime) AS most_recent_epc
-   FROM
-     epc
-   GROUP BY
-     address) AS latest_record
-INNER JOIN
-  epc
-ON
-  epc.address = latest_record.address AND
-  epc.lodgement_datetime = latest_record.most_recent_epc)""")
-# cur.execute("DROP TABLE epc")
-# Drop duplicate records based on the most recent query_date
-# Is the address the best variable to filter by? In the test case above, there are two entries for the same address...
-cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
-            (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")
 
 rows = cur.fetchall()
 print(rows)
