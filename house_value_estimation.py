@@ -17,7 +17,7 @@ class Property:
         """
         postcode = input("Postcode:")
         self.postcode = postcode
-        # Remove spaces from postcode
+        # Remove spaces from postcode and sterilize to avoid SQL injection
         number = input("House/Flat Number:")
         self.number = number
         self.postcode_district = self.postcode[:2]
@@ -25,8 +25,10 @@ class Property:
         # Connect to db
         con = sqlite3.connect(self.db)
         cur = con.cursor()
-        results  = cur.execute("""SELECT *""")
+        results  = cur.execute("SELECT * FROM data_log WHERE postcode_district =? ",(self.postcode_district,))
         # Is there data from both the EPC and Land Registry within the last Month?
+        if len(results) == 0:
+            epc.get_postcode_data(key, self.postcode)
 
 
 #
@@ -36,8 +38,9 @@ prop.get_input()
 
 
 ## Quickly create a new table to log data sources and track when updated
-
-
+test = 'CH2'
+import sqlite3
 con = sqlite3.connect('cda.db')
 cur = con.cursor()
 cur.execute("""CREATE TABLE data_log (postcode_district text, epc bool, epc_date text, land_reg bool, land_reg_date text)""")
+results  = cur.execute("SELECT * FROM data_log WHERE postcode_district =?",(test,))
