@@ -97,14 +97,6 @@ postcode = 'CH1'
 results = get_postcode_data(encoded_api_key, postcode)
 
 
-
-# Initialise the table if not already done
-# Let's start with a smaller one with a few key values
-# Query date is reflective of the date the data is requested
-cur.execute('''CREATE TABLE IF NOT EXISTS epc 
-            (address text, address1 text ,uprn text,postcode text, current_energy_rating text, total_floor_area real,
-            lodgement_datetime text, query_date text
-            )''')
 # Create a string variable for the current datetime
 curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 

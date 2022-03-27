@@ -36,6 +36,7 @@ class Property:
 #
 # Identify property for estimate
 prop = Property()
+prop.postcode = 'CH1 1SD'
 prop.get_input()
 
 
@@ -44,5 +45,5 @@ test = 'CH2'
 import sqlite3
 con = sqlite3.connect('cda.db')
 cur = con.cursor()
-cur.execute("""CREATE TABLE data_log (postcode_district text, epc bool, epc_date text, land_reg bool, land_reg_date text)""")
+
 results  = cur.execute("SELECT * FROM data_log WHERE postcode_district =?",(test,))
