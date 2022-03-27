@@ -21,7 +21,14 @@ def create_db(db_name='cda.db'):
                     total_floor_area real, lodgement_datetime text, query_date text
                     )''')
         return
-
+    def create_landreg(cursor):
+        """
+        Create a table for Land Registry Price Paid records
+        :param cursor: sqlite3 cursor object from db connection
+        :return:
+        """
+        cursor.execute("""CREATE TABLE IF NOT EXISTS landreg (postcode_district text, postcode text, 
+         PAON text, street_name text, transaction_date text, price_paid int, query_date text)""")
     def create_dlog(cursor):
         """
         Create a log for when other tables are updated and which postcodes are included
@@ -33,6 +40,7 @@ def create_db(db_name='cda.db'):
         return
 
     create_epc(cur)
+    create_landreg(cur)
     create_dlog(cur)
     con.close()
 
