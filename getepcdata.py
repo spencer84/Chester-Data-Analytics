@@ -94,27 +94,7 @@ def get_postcode_epc_data(key, postcode):
 postcode = 'CH1'
 
 # Call the function
-results = get_postcode_data(encoded_api_key, postcode)
-
-
-# Create a string variable for the current datetime
-curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-# Test for edge cases
-cur.execute("SELECT * FROM epc WHERE address = '12, Hillside Road, Blacon'")
-rows = cur.fetchall()
-print(rows)
-# How to handle multiple EPC records on same property? Take most recent
-
-rows = cur.fetchall()
-print(rows)
-# Commit the changes to save all updates
-
-cur.execute("COMMIT;")
-
-# Close the connection
-
-cur.close()
+#results = get_postcode_data(encoded_api_key, postcode)
 
 # cur.execute('''CREATE TABLE IF NOT EXISTS epc
 #                (lmk_key text, address1 text, address2 text, address3 text,
@@ -148,9 +128,9 @@ cur.close()
 
 
 # Save (commit) the changes
-con.commit()
-
-# We can also close the connection if we are done with it.
-# Just be sure any changes have been committed or they will be lost.
-con.close()
-# results.to_csv('epc_' +postcode + '.csv')
+# con.commit()
+#
+# # We can also close the connection if we are done with it.
+# # Just be sure any changes have been committed or they will be lost.
+# con.close()
+# # results.to_csv('epc_' +postcode + '.csv')
