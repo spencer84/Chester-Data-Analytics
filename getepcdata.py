@@ -29,7 +29,7 @@ def get_key(path):
     # Need to encode the username and key then strip off the extra bits
     encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
     return encoded_api_key
-
+print(get_key(path))
 def get_postcode_epc_data(key, postcode):
     """" Returns a pandas dataframe containing all results for the given postcode.
     This can be written to a CSV file for later processing.
@@ -50,6 +50,7 @@ def get_postcode_epc_data(key, postcode):
             response = requests.get(url, params={'postcode': postcode, 'size': 5000, 'from': total_count,
                                                  'energy-band': band},
                                     headers={'Authorization': 'Basic %s' % key, "Accept": 'application/json'})
+            print(response)
             results += response.json()['rows']
             count = len(response.json()['rows'])
             if count < 5000:  # The idea here is that if the response

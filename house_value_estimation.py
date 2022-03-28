@@ -27,20 +27,21 @@ class Property:
         # Connect to db
         con = sqlite3.connect(self.db)
         cur = con.cursor()
-        results = cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
+        cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
+        results = cur.fetchall()
         # Is there data from both the EPC and Land Registry within the last Month?
         if len(results) == 0:
             print("No data exists for this postcode district. Getting EPC Data...")
-            epc.get_postcode_epc_data(epc.get_key(path), self.postcode)
+            epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
 
 
 
 # Identify property for estimate
 prop = Property()
 prop.postcode = 'CH1 1SD'
+prop.postcode_district = 'CH1'
 #prop.get_input()
 prop.check_postcode_data()
-
 
 
 ## Quickly create a new table to log data sources and track when updated
