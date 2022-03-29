@@ -11,6 +11,18 @@ params_lr = {'_pageSize':200,
                      'propertyAddress.town':town}
 def price_paid_query(params_lr):
     response = requests.get(url, params=params_lr)
+    results = results.json()['result']['items']
+    results = pd.DataFrame(data=results, columns=response.json()['column-names'])
+    # Need to write these results to the database
+    curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # Write to DB
+    con = sqlite3.connect('cda.db')
+    cur = con.cursor()
+    # Iterate through the results dataframe, adding each value
+    for index, row in results.iterrows():
+        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, row['postcode'],
+                                                                row['current-energy-rating'], row['total-floor-area'],
+                                                                row['lodgement-datetime'], curr_time))
     return response
 
 ## Retrive data

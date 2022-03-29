@@ -51,7 +51,6 @@ class Property:
                     pass
                 else:
                     print("Input not understood...Data will not be updated.")
-
         # Find most recent land_reg records
         params_lr = {'_pageSize': 200,
                      '_view': 'basic',
