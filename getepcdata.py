@@ -48,12 +48,14 @@ def get_postcode_epc_data(key, postcode):
         total_count = 0
         while results_not_reached:
             response = requests.get(url, params={'postcode': postcode, 'size': 5000, 'from': total_count,
-                                                 'energy-band': band},
-                                    headers={'Authorization': 'Basic %s' % key, "Accept": 'application/json'})
-            print(response)
-            results += response.json()['rows']
-            count = len(response.json()['rows'])
-            if count < 5000:  # The idea here is that if the response
+                                                     'energy-band': band},
+                                        headers={'Authorization': 'Basic %s' % key, "Accept": 'application/json'})
+            if response.status_code == 200:
+                results += response.json()['rows']
+                count = len(response.json()['rows'])
+            else:
+                return response.status_code
+            if count < 5000:  # The idea here is that if the response gets to the last section, we end the loop
                 results_not_reached = False
             total_count += count
     results = pd.DataFrame(data=results, columns=response.json()['column-names'])
@@ -82,10 +84,13 @@ def get_postcode_epc_data(key, postcode):
     ON
       epc.address = latest_record.address AND
       epc.lodgement_datetime = latest_record.most_recent_epc)""")
-    # cur.execute("DROP TABLE epc")
     # Drop duplicate records based on the most recent query_date
     cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
                 (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")
+    # Log the data in the data_log table
+    # Create the postcode district value
+    postcode_district = postcode.split(" ")[0]
+    cur.execute("INSERT INTO data_log VALUES(?,?,?)",(postcode_district, 'epc', curr_time))
     con.commit()
     con.close()
     return

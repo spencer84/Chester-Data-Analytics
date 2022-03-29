@@ -29,14 +29,14 @@ def create_db(db_name='cda.db'):
         """
         cursor.execute("""CREATE TABLE IF NOT EXISTS landreg (postcode_district text, postcode text, 
          PAON text, street_name text, transaction_date text, price_paid int, query_date text)""")
+        return
     def create_dlog(cursor):
         """
         Create a log for when other tables are updated and which postcodes are included
         :param cursor: sqlite3 cursor object from db connection
         :return:
         """
-        cursor.execute("""CREATE TABLE IF NOT EXISTS data_log (postcode_district text, epc bool, 
-        epc_date text, land_reg bool, land_reg_date text)""")
+        cursor.execute("""CREATE TABLE IF NOT EXISTS data_log (postcode_district text, data_table text,date text)""")
         return
 
     create_epc(cur)
