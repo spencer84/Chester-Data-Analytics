@@ -33,6 +33,15 @@ def sql_query_to_df(cur, query, table):
             col_dict[i].append(j[cols.index(i)])
     return pd.DataFrame(col_dict)
 
+def get_postcode_district(postcode):
+    """ Returns the postcode district/area from a given postcode
+    """
+    if ' ' in postcode:
+        return postcode.split(' ')[0]
+    elif len(postcode) == 6:
+        return postcode[:3]
+    else:
+        return postcode[:4]
 class Property:
     def __init__(self):
         self.postcode = None
