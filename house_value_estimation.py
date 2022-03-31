@@ -15,7 +15,7 @@ def sql_query_to_df(cur, query):
     :param cur: The cursor object created by the database connection
     :param query: The query that the resulting dataframe is based on
     :param table: The table within the database that is being queried
-    :return:
+    :return: Pandas DataFrame of the query
     """
     # First get the colunmns
     cols = []
@@ -106,10 +106,12 @@ class Property:
         """Once data is updated and checked, create new attributes of the property object as Pandas DataFrames
         containing both the relevant data to create the prediction model
         """
-        cur = self.return_cursor()
-        cur.execute("SELECT * FROM epc WHERE postcode_district ?=",(self.postcode_district,))
-        rows = cur.fetchall()
-        ### How convert SQL query to Pandas Dataframe?
+        # Create EPC DataFrame
+        epc_query = "SELECT * FROM epc WHERE postcode_district = "+str(self.postcode_district)
+        self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
+        # Create Land Registry Price Paid DataFrame
+        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = "+str(self.town)
+        self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
 
     def create_merged_table(self):
         merged_table = pd.merge(self.epc, self.land_reg, )
