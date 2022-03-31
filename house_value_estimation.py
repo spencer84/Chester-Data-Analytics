@@ -8,7 +8,7 @@ import pandas as pd
 path = 'API Key.json'
 # Create a class for a property
 
-def sql_query_to_df(cur, query, table):
+def sql_query_to_df(cur, query):
     """
     Construct a Pandas DataFrame from a given SQL table and query. The PRAGMA table_info() section returns the columns
     used in the table, then the results from the query are parsed into individual arrays, then combined.
@@ -20,10 +20,10 @@ def sql_query_to_df(cur, query, table):
     # First get the colunmns
     cols = []
     # Need to find better placeholder
-    cur.execute("PRAGMA table_info(?)",(table,))
-    column_names = cur.fetchall()
+    cur.execute(query)
+    column_names = cur.description
     for i in column_names:
-        cols.append(i[1])
+        cols.append(i[0])
     cur.execute(query)
     rows = cur.fetchall()
     col_dict = {}
