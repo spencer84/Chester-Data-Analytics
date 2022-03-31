@@ -7,6 +7,32 @@ import pandas as pd
 # Define path for API keys JSON file
 path = 'API Key.json'
 # Create a class for a property
+
+def sql_query_to_df(cur, query, table):
+    """
+    Construct a Pandas DataFrame from a given SQL table and query. The PRAGMA table_info() section returns the columns
+    used in the table, then the results from the query are parsed into individual arrays, then combined.
+    :param cur: The cursor object created by the database connection
+    :param query: The query that the resulting dataframe is based on
+    :param table: The table within the database that is being queried
+    :return:
+    """
+    # First get the colunmns
+    cols = []
+    # Need to find better placeholder
+    cur.execute("PRAGMA table_info(?)",(table,))
+    column_names = cur.fetchall()
+    for i in column_names:
+        cols.append(i[1])
+    cur.execute(query)
+    rows = cur.fetchall()
+    col_dict = {}
+    for i in cols:
+        col_dict[i] = []
+        for j in rows:
+            col_dict[i].append(j[cols.index(i)])
+    return pd.DataFrame(col_dict)
+
 class Property:
     def __init__(self):
         self.postcode = None
@@ -61,7 +87,7 @@ class Property:
         AND data_table = 'land_reg')""")
         max_land_reg = cur.fetchall()
         if len(max_land_reg) == 0:
-            print("No data exists for this postcode district. Getting EPC Data...")
+            print("No data exists for this postcode district. Getting Land Registry Data...")
             land.get_full_price_paid(epc.get_key(path), self.postcode_district)
     def return_cursor(self):
         con = sqlite3.connect(self.db)
@@ -72,9 +98,10 @@ class Property:
         containing both the relevant data to create the prediction model
         """
         cur = self.return_cursor()
-
-        cur.execute("SELECT * FROM epc WHERE postcode_district")
+        cur.execute("SELECT * FROM epc WHERE postcode_district ?=",(self.postcode_district,))
         rows = cur.fetchall()
+        ### How convert SQL query to Pandas Dataframe?
+
     def create_merged_table(self):
         merged_table = pd.merge(self.epc, self.land_reg, )
         self.merged_table = merged_table
