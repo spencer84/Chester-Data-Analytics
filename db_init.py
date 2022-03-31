@@ -27,7 +27,7 @@ def create_db(db_name='cda.db'):
         :param cursor: sqlite3 cursor object from db connection
         :return:
         """
-        cursor.execute("""CREATE TABLE IF NOT EXISTS landreg (postcode_district text, postcode text, 
+        cursor.execute("""CREATE TABLE IF NOT EXISTS landreg (postcode_district text,postcode_district text, postcode text, 
          PAON text, street_name text, transaction_date text, price_paid int, query_date text)""")
         return
     def create_dlog(cursor):

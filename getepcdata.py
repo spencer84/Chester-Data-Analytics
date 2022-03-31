@@ -42,6 +42,7 @@ def get_postcode_epc_data(key, postcode):
     # Can only paginate through the first 10,000 results of any query. Need to use energy bands (or other parameter)
     # to break up the query.
     energy_bands = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    postcode_area = postcode.split(" ")[0]
     results = []
     for band in energy_bands:
         results_not_reached = True
@@ -66,7 +67,7 @@ def get_postcode_epc_data(key, postcode):
     cur = con.cursor()
     # Iterate through the results dataframe, adding each value
     for index, row in results.iterrows():
-        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, row['postcode'],
+        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, postcode_area,row['postcode'],
                                                                 row['current-energy-rating'], row['total-floor-area'],
                                                                 row['lodgement-datetime'], curr_time))
     # Is this redundant based on below code?
@@ -84,6 +85,7 @@ def get_postcode_epc_data(key, postcode):
     ON
       epc.address = latest_record.address AND
       epc.lodgement_datetime = latest_record.most_recent_epc)""")
+    # cur.execute("DROP TABLE epc")
     # Drop duplicate records based on the most recent query_date
     cur.execute("""DELETE FROM epc WHERE query_date < (SELECT max(query_date) FROM epc) AND address IN
                 (SELECT address FROM epc GROUP BY address HAVING COUNT(*) >1)""")

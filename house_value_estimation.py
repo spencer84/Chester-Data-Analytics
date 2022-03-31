@@ -2,6 +2,7 @@ import getepcdata as epc
 import getpricepaid as land
 import sqlite3
 import datetime
+import pandas as pd
 
 # Define path for API keys JSON file
 path = 'API Key.json'
@@ -35,8 +36,8 @@ class Property:
         cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
         results = cur.fetchall()
         # Find most recent EPC records
-        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = 'CH1' 
-        AND data_table = 'epc')""")
+        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district =?  
+        AND data_table = 'epc'""",(self.postcode_district,))
         max_epc = cur.fetchall()
         if len(max_epc) == 0:
             print("No data exists for this postcode district. Getting EPC Data...")
@@ -66,6 +67,18 @@ class Property:
         con = sqlite3.connect(self.db)
         cur = con.cursor()
         return cur
+    def query_data(self):
+        """Once data is updated and checked, create new attributes of the property object as Pandas DataFrames
+        containing both the relevant data to create the prediction model
+        """
+        cur = self.return_cursor()
+
+        cur.execute("SELECT * FROM epc WHERE postcode_district")
+        rows = cur.fetchall()
+    def create_merged_table(self):
+        merged_table = pd.merge(self.epc, self.land_reg, )
+        self.merged_table = merged_table
+
 
 
 
