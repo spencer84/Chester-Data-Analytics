@@ -142,6 +142,8 @@ prop.postcode_district = 'CH1'
 # prop.get_input()
 prop.check_postcode_data()
 cur = prop.return_cursor()
+prop.query_data()
+prop.create_merged_table()
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
