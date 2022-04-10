@@ -83,7 +83,7 @@ class Property:
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
         AND data_table = 'epc' )""", {"postcode":self.postcode_district})
         max_epc = cur.fetchall()
-        if len(max_epc) == 0:
+        if max_epc[0] == (None,):
             print("No data exists for this postcode district. Getting EPC Data...")
             epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
         else:
