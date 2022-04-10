@@ -106,9 +106,19 @@ class Property:
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = 'CH1' 
         AND data_table = 'land_reg')""")
         max_land_reg = cur.fetchall()
-        if len(max_land_reg) == 0:
+        if max_land_reg[0] == (None,):
             print("No data exists for this postcode district. Getting Land Registry Data...")
             land.get_full_price_paid(epc.get_key(path), self.postcode_district, params_lr)
+        else:
+            land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
+            if land_age > 30:
+                update_land = input("Land Registry Data is more than 30 days old. Update? y/n")
+                if update_land == 'y':
+                    land.get_full_price_paid() #.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
+                elif update_land == 'n':
+                    pass
+                else:
+                    print("Input not understood...Data will not be updated.")
 
     def return_cursor(self):
         con = sqlite3.connect(self.db)
