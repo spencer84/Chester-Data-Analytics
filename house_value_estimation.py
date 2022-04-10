@@ -80,8 +80,8 @@ class Property:
         cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
         results = cur.fetchall()
         # Find most recent EPC records
-        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district =?  
-        AND data_table = 'epc'""", (self.postcode_district,))
+        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
+        AND data_table = 'epc' )""", {"postcode":self.postcode_district})
         max_epc = cur.fetchall()
         if len(max_epc) == 0:
             print("No data exists for this postcode district. Getting EPC Data...")
@@ -127,12 +127,15 @@ class Property:
         self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
 
     def prep_for_merge(self):
+
         ### What needs to be done to faciliate the merging of these records?
         return
 
-    def create_merged_table(self):
-        merged_table = pd.merge(self.epc_table, self.land_reg_table, how='left')
-        self.merged_table = merged_table
+    # def create_merged_table(self):
+    #     merged_table = pd.merge(self.epc_table, self.land_reg_table, how='left', )
+    #     self.merged_table = merged_table
+    # def create_model(self):
+
 
 
 # Identify property for estimate
