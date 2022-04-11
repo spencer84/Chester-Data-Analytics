@@ -64,7 +64,7 @@ def get_full_price_paid(params_lr, con, page=0):
         page += 1
         print(page)
         params_lr['_page'] = page
-        price_paid_query(cur, params_lr)
+        len_results = price_paid_query(cur, params_lr)
         con.commit()
         ## For some API results, there are no values resulting in a KeyError
     else:
