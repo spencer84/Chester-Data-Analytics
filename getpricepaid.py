@@ -37,6 +37,8 @@ def price_paid_query(cur, params_lr):
         , i['propertyAddress']['street'], i['transactionDate'], i['pricePaid'], curr_time))
     return len(results)
 
+
+
 ## Retrive data
 #data = price_paid_query(params_lr)
 
@@ -48,14 +50,14 @@ def price_paid_query(cur, params_lr):
 
 ## Recursively paginate through results
 
-def get_full_price_paid(params_lr, page = 0):
-    con = sqlite3.connect('cda.db')
+def get_full_price_paid(params_lr, con, page = 0):
     cur = con.cursor()
     params_lr['_page'] = page
     len_results = price_paid_query(cur, params_lr)
     if len_results == 200: # Recursion until a page length less than max achieved
         page += 1
-        get_full_price_paid(params_lr, page = page)
+        params_lr['_page'] = page
+        price_paid_query(cur, params_lr)
         con.commit()
     else:
         # If less than 200 results, then log the transaction and close the connection
@@ -65,17 +67,12 @@ def get_full_price_paid(params_lr, page = 0):
         con.close()
     return
 
-get_full_price_paid(params_lr)
 
-## Change column names
-col_names = ['url', 'Price Paid','Transaction Date', 'Transaction Id', 'Type', 'About','PAON', 'Postcode', 'Street Name']
-df.columns = col_names
 
-## Output
-df.to_csv('price_paid_'+town+'.csv')
-
+con = sqlite3.connect('cda.db')
+get_full_price_paid(params_lr, con)
+#price_paid_query(cur, params_lr)
 ## Paginating through the results for an entire town works, but is slow
 ## Is there a way to find out if a postcode contains a district?
 
-# Need to do some processing to identify a given postcode
-df['postcode district'] = df['Postcode'].apply(lambda x: str(x)[:3])
+
