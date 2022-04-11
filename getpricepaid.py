@@ -37,10 +37,20 @@ def price_paid_query(cur, params_lr):
     curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # Iterate through the results dataframe, adding each value to the DB
     for i in results:
+        vals_to_insert = [params_lr['propertyAddress.town'], None, None, None, None, i['transactionDate']
+            , i['pricePaid'], curr_time]
+        property_details = i['propertyAddress']
+        # KeyError thrown if a given key isn't returned; Need to check before assigning value
+        if 'postcode' in property_details:
+            vals_to_insert[1] = get_postcode_district(i['propertyAddress']['postcode'])
+            vals_to_insert[2] = i['propertyAddress']['postcode']
+        if 'paon' in property_details:
+            vals_to_insert[3] = i['propertyAddress']['paon']
+        if 'street' in property_details:
+            vals_to_insert[4] = i['propertyAddress']['street']
+
         cur.execute("INSERT INTO land_reg VALUES(?,?,?,?,?,?,?,?)"
-                    , (params_lr['propertyAddress.town'], get_postcode_district(i['propertyAddress']['postcode'])
-                       , i['propertyAddress']['postcode'], i['propertyAddress']['paon']
-                       , i['propertyAddress']['street'], i['transactionDate'], i['pricePaid'], curr_time))
+                    , tuple(vals_to_insert))
     return len(results)
 
 ## Recursively paginate through results
