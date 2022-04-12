@@ -29,7 +29,6 @@ def get_key(path):
     # Need to encode the username and key then strip off the extra bits
     encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
     return encoded_api_key
-print(get_key(path))
 def get_postcode_epc_data(key, postcode):
     """" Returns a pandas dataframe containing all results for the given postcode.
     This can be written to a CSV file for later processing.

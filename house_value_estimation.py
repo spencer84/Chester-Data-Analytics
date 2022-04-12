@@ -144,8 +144,9 @@ class Property:
         return
 
     # def create_merged_table(self):
-    #     merged_table = pd.merge(self.epc_table, self.land_reg_table, how='left', )
+    #     merged_table = pd.merge(self.epc_table, self.land_reg_table, how='left', on = )
     #     self.merged_table = merged_table
+    #
     # def create_model(self):
 
 
