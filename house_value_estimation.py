@@ -104,8 +104,8 @@ class Property:
                      '_view': 'basic',
                      '_properties': properties,
                      'propertyAddress.town': self.town}
-        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district =?
-        AND data_table = 'land_reg')""", self.town)
+        cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode
+        AND data_table = 'land_reg')""",{"postcode":self.postcode_district})
         max_land_reg = cur.fetchall()
         print(str(max_land_reg))
         if max_land_reg[0] == (None,):
