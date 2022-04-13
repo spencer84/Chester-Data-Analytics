@@ -83,7 +83,7 @@ class Property:
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
         AND data_table = 'epc' )""", {"postcode":self.postcode_district})
         max_epc = cur.fetchall()
-        print(max_epc)
+        print(str(max_epc))
         if max_epc[0] == (None,):
             print("No data exists for this postcode district. Getting EPC Data...")
             epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
@@ -107,7 +107,7 @@ class Property:
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district =?
         AND data_table = 'land_reg')""", self.town)
         max_land_reg = cur.fetchall()
-        print(max_land_reg)
+        print(str(max_land_reg))
         if max_land_reg[0] == (None,):
             print("No data exists for this postcode district. Getting Land Registry Data...")
             land.get_full_price_paid(params_lr,con)
@@ -157,9 +157,9 @@ prop.postcode = 'CH1 1SD'
 prop.postcode_district = 'CH1'
 # prop.get_input()
 prop.check_postcode_data()
-cur = prop.return_cursor()
-prop.query_data()
-prop.create_merged_table()
+# cur = prop.return_cursor()
+# prop.query_data()
+# prop.create_merged_table()
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'

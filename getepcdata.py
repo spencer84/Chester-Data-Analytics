@@ -98,7 +98,7 @@ def get_postcode_epc_data(key, postcode):
 
 
 # Select postcode to search by
-postcode = 'CH1'
+#postcode = 'CH1'
 
 # Call the function
 #results = get_postcode_data(encoded_api_key, postcode)

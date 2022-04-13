@@ -74,10 +74,3 @@ def get_full_price_paid(params_lr, con, page=0):
         con.commit()
         con.close()
     return
-
-
-con = sqlite3.connect('cda.db')
-get_full_price_paid(params_lr, con)
-# price_paid_query(cur, params_lr)
-## Paginating through the results for an entire town works, but is slow
-## Is there a way to find out if a postcode contains a district?
