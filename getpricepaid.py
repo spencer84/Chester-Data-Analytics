@@ -67,10 +67,10 @@ def get_full_price_paid(params_lr, con, page=0):
         len_results = price_paid_query(cur, params_lr)
         con.commit()
         ## For some API results, there are no values resulting in a KeyError
-    else:
+
         # If less than 200 results, then log the transaction and close the connection
-        curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cur.execute("INSERT INTO data_log VALUES(?,?,?)", (params_lr['propertyAddress.town'], 'land_reg', curr_time))
-        con.commit()
-        con.close()
+    curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cur.execute("INSERT INTO data_log VALUES(?,?,?)", (params_lr['propertyAddress.town'], 'land_reg', curr_time))
+    con.commit()
+    con.close()
     return
