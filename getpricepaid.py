@@ -1,6 +1,7 @@
 import requests
 import datetime
 import sqlite3
+import queue
 
 class LandData:
     def __init__(self):
@@ -9,6 +10,7 @@ class LandData:
                            'paon,propertyAddress.street,propertyAddress.postcode'
         self.town = None
         self.page = 0
+        self.results_len = 0
         self.params = {'_pageSize': 200,
              '_view': 'basic',
              '_properties': properties,
@@ -17,7 +19,7 @@ class LandData:
         self.status = None
         self.conn = None
         self.cur = None
-        self.results_to_add = []
+        self.results_to_add = queue.Queue()
         self.request_status_code = None
     def create_connection(self, db):
         self.conn = sqlite3.connect(db)
@@ -29,8 +31,7 @@ class LandData:
         self.conn.close()
         print("Connection closed")
 
-
-    def price_paid_query(self,url, params_lr):
+    def price_paid_query(self):
         """
         Queries the Land Registry API and with the
         :param cur: DB Cursor Object
@@ -40,11 +41,12 @@ class LandData:
         response = requests.get(self.url, params=self.params)
         self.request_status_code = response.status_code
         results = response.json()['result']['items']
+        self.results_len = len(results)
         # Need to write these results to the database
         curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         # Iterate through the results dataframe, adding each value to the DB
         for i in results:
-            vals_to_insert = [params_lr['propertyAddress.town'], None, None, None, None, i['transactionDate']
+            vals_to_insert = [self.town, None, None, None, None, i['transactionDate']
                 , i['pricePaid'], curr_time]
             property_details = i['propertyAddress']
             # KeyError thrown if a given key isn't returned; Need to check before assigning value
@@ -55,8 +57,27 @@ class LandData:
                 vals_to_insert[3] = i['propertyAddress']['paon']
             if 'street' in property_details:
                 vals_to_insert[4] = i['propertyAddress']['street']
+            self.results_to_add.put(vals_to_insert)
 
-            self.results_to_add.append(vals_to_insert)
+    def get_full_price_paid(self):
+        end_of_results = False
+        while not end_of_results:  # Recursion until a page length less than max achieved
+            self.price_paid_query()
+            self.page += 1
+            if self.results_len <200:
+                end_of_results = True
+            print(self.page)
+
+    def data_to_db(self):
+        while not self.results_to_add.empty():
+            self.cur.execute("")
+        curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cur.execute("INSERT INTO data_log VALUES(?,?,?)", (params_lr['propertyAddress.town'], 'land_reg', curr_time))
+        con.commit()
+        con.close()
+        return
+
+
 
 
 
@@ -110,8 +131,6 @@ def price_paid_query(cur,url, params_lr):
 
         results_to_add.append(vals_to_insert)
     return results_to_add
-
-get_request_status(params_lr, )
 
 ## Recursively paginate through results
 
