@@ -93,7 +93,7 @@ class LandData:
         while self.query_in_progress:
             self.cur.execute("")
         curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.cur.execute("INSERT INTO data_log VALUES(?,?,?)", (params_lr['propertyAddress.town'], 'land_reg', curr_time))
+        self.cur.execute("INSERT INTO data_log VALUES(?,?,?)", (self.town, 'land_reg', curr_time))
         self.conn.commit()
         self.conn.close()
         return
