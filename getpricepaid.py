@@ -93,7 +93,7 @@ class LandData:
             print(self.page)
             # Write results to database
         print("Writing results to db")
-        #self.data_to_db()
+        self.data_to_db()
 
     def data_to_db(self):
         while not self.results_to_add.empty():
@@ -106,11 +106,11 @@ class LandData:
         self.conn.close()
         return
 
-
-land = LandData()
-land.town = 'CHESTER'
-land.create_connection('cda.db')
-land.create_cursor()
-land.get_full_price_paid()
+# This is just for testing
+# land = LandData()
+# land.town = 'CHESTER'
+# land.create_connection('cda.db')
+# land.create_cursor()
+# land.get_full_price_paid()
 
 

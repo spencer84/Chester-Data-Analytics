@@ -75,6 +75,7 @@ class Property:
 
     def check_postcode_data(self):
         # Connect to db
+        print('Checking postcode data...')
         con = sqlite3.connect(self.db)
         cur = con.cursor()
         cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
@@ -83,7 +84,6 @@ class Property:
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
         AND data_table = 'epc' )""", {"postcode":self.postcode_district})
         max_epc = cur.fetchall()
-        print(str(max_epc))
         if max_epc[0] == (None,):
             print("No data exists for this postcode district. Getting EPC Data...")
             epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
