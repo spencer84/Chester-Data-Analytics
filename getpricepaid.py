@@ -93,11 +93,11 @@ class LandData:
             print(self.page)
             # Write results to database
         print("Writing results to db")
-        self.data_to_db()
+        #self.data_to_db()
 
     def data_to_db(self):
         while not self.results_to_add.empty():
-            self.cur.execute("INSERT INTO land_reg VALUES(?,?,?,?,?,?,?,?",self.results_to_add.get())
+            self.cur.execute("INSERT INTO land_reg VALUES(?,?,?,?,?,?,?,?)",tuple(self.results_to_add.get()))
         # Find all unique postcode areas
         curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for area in self.unique_postcode_areas:
