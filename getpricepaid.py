@@ -31,7 +31,7 @@ class LandData:
         self.cur = None
         self.results_to_add = queue.Queue()
         self.request_status_code = None
-        self.query_in_progress = False
+        self.unique_postcode_areas = []
 
     def create_connection(self, db):
         self.conn = sqlite3.connect(db)
@@ -68,7 +68,13 @@ class LandData:
             property_details = i['propertyAddress']
             # KeyError thrown if a given key isn't returned; Need to check before assigning value
             if 'postcode' in property_details:
-                vals_to_insert[1] = get_postcode_district(i['propertyAddress']['postcode'])
+                postcode_district = get_postcode_district(i['propertyAddress']['postcode'])
+                vals_to_insert[1] = postcode_district
+                # If the postcode district not otherwise added, then add to list
+                # This assumes that a given town will cover unique postcode areas (i.e. not split
+                # over multiple areas
+                if postcode_district not in self.unique_postcode_areas:
+                    self.unique_postcode_areas.append(postcode_district)
                 vals_to_insert[2] = i['propertyAddress']['postcode']
             if 'paon' in property_details:
                 vals_to_insert[3] = i['propertyAddress']['paon']
@@ -90,10 +96,12 @@ class LandData:
         self.data_to_db()
 
     def data_to_db(self):
-        while self.query_in_progress:
-            self.cur.execute("")
+        while not self.results_to_add.empty():
+            self.cur.execute("INSERT INTO land_reg VALUES(?,?,?,?,?,?,?,?",self.results_to_add.get())
+        # Find all unique postcode areas
         curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.cur.execute("INSERT INTO data_log VALUES(?,?,?)", (self.town, 'land_reg', curr_time))
+        for area in self.unique_postcode_areas:
+            self.cur.execute("INSERT INTO data_log VALUES(?,?,?)", (area, 'land_reg', curr_time))
         self.conn.commit()
         self.conn.close()
         return

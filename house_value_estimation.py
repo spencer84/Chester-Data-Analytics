@@ -98,25 +98,24 @@ class Property:
                 else:
                     print("Input not understood...Data will not be updated.")
         # Find most recent land_reg records
-        properties = 'transactionId,transactionDate,pricePaid,propertyAddress.paon,propertyAddress.street,' \
-                     'propertyAddress.postcode'
-        params_lr = {'_pageSize': 200,
-                     '_view': 'basic',
-                     '_properties': properties,
-                     'propertyAddress.town': self.town}
+        # Create the LandData Object and assign attributes needed for query
+        land_data = land.LandData()
+        land_data.town = self.town
+        land_data.create_connection('cda.db')
+        land_data.create_cursor()
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode
         AND data_table = 'land_reg')""",{"postcode":self.postcode_district})
         max_land_reg = cur.fetchall()
         print(str(max_land_reg))
         if max_land_reg[0] == (None,):
             print("No data exists for this postcode district. Getting Land Registry Data...")
-            land.get_full_price_paid(params_lr,con)
+            land_data.get_full_price_paid()
         else:
             land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
             if land_age.days > 30:
                 update_land = input("Land Registry Data is more than 30 days old. Update? y/n")
                 if update_land == 'y':
-                    land.get_full_price_paid(params_lr,con)
+                    land_data.get_full_price_paid()
                 elif update_land == 'n':
                     pass
                 else:
@@ -135,7 +134,7 @@ class Property:
         epc_query = "SELECT * FROM epc WHERE postcode_district = " + str(self.postcode_district)
         self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
         # Create Land Registry Price Paid DataFrame
-        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.town)
+        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
         self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
 
     def prep_for_merge(self):
@@ -155,6 +154,7 @@ class Property:
 prop = Property()
 prop.postcode = 'CH1 1SD'
 prop.postcode_district = 'CH1'
+prop.town = 'CHESTER'
 # prop.get_input()
 prop.check_postcode_data()
 # cur = prop.return_cursor()
