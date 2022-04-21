@@ -126,27 +126,31 @@ class Property:
         cur = con.cursor()
         return cur
 
-    def query_data(self):
+    def create_merged_table(self):
         """Once data is updated and checked, create new attributes of the property object as Pandas DataFrames
         containing both the relevant data to create the prediction model
         """
-        # Create EPC DataFrame
-        epc_query = "SELECT * FROM epc WHERE postcode_district = " + str(self.postcode_district)
-        self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
-        # Create Land Registry Price Paid DataFrame
-        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
-        self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
+        # Are Pandas DataFrames redundant if I just do this in SQL?
+        # # Create EPC DataFrame
+        # epc_query = "SELECT * FROM epc WHERE postcode_district = " + str(self.postcode_district)
+        # self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
+        # # Create Land Registry Price Paid DataFrame
+        # land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
+        # self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
+        # Create merged table
+        merge_query = """WITH epc_split as(
+        select *, instr(address1,',') AS PAON
+        FROM epc
+         )
+          select * from epc_split
+        inner join land_reg
+        on epc_split.PAON = land_reg.PAON AND
+        epc_split.postcode = land_reg.postcode;)
+        """
+        self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
 
-    def prep_for_merge(self):
 
-        ### What needs to be done to faciliate the merging of these records?
-        return
 
-    # def create_merged_table(self):
-    #     merged_table = pd.merge(self.epc_table, self.land_reg_table, how='left', on = )
-    #     self.merged_table = merged_table
-    #
-    # def create_model(self):
 
 
 
@@ -158,7 +162,7 @@ prop.town = 'CHESTER'
 # prop.get_input()
 prop.check_postcode_data()
 # cur = prop.return_cursor()
-# prop.query_data()
+prop.query_data()
 # prop.create_merged_table()
 
 # Quickly create a new table to log data sources and track when updated
