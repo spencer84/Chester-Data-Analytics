@@ -131,13 +131,12 @@ class Property:
         containing both the relevant data to create the prediction model
         """
         # Are Pandas DataFrames redundant if I just do this in SQL?
-        # # Create EPC DataFrame
-        # epc_query = "SELECT * FROM epc WHERE postcode_district = " + str(self.postcode_district)
-        # self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
-        # # Create Land Registry Price Paid DataFrame
-        # land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
-        # self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
-        # Create merged table
+        # Create EPC DataFrame
+        epc_query = f"SELECT * FROM epc WHERE postcode like '{str(self.postcode_district)}"
+        self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
+        # Create Land Registry Price Paid DataFrame
+        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
+        self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
         merge_query = """WITH epc_split as(
         select *, instr(address1,',') AS PAON
         FROM epc
@@ -162,8 +161,7 @@ prop.town = 'CHESTER'
 # prop.get_input()
 prop.check_postcode_data()
 # cur = prop.return_cursor()
-prop.query_data()
-# prop.create_merged_table()
+prop.create_merged_table()
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
