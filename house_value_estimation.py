@@ -21,7 +21,7 @@ def sql_query_to_df(cursor, query):
     # First get the columns
     cols = []
     # Need to find better placeholder
-    cursor.execute(query)
+    cursor.executescript(query)
     column_names = cursor.description
     for i in column_names:
         cols.append(i[0])
@@ -132,20 +132,19 @@ class Property:
         """
         # Are Pandas DataFrames redundant if I just do this in SQL?
         # Create EPC DataFrame
-        epc_query = f"SELECT * FROM epc WHERE postcode like '{str(self.postcode_district)}"
+        epc_query = f"SELECT * FROM epc WHERE postcode like '{str(self.postcode_district)}%'"
         self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
         # Create Land Registry Price Paid DataFrame
-        land_reg_query = f"SELECT * FROM land_reg WHERE postcode_district = {str(self.postcode_district)}"
+        land_reg_query = f"SELECT * FROM land_reg WHERE postcode_district = '{str(self.postcode_district)}'"
         self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
-        merge_query = """WITH epc_split as(
-        select *, instr(address1,',') AS PAON
-        FROM epc
-         )
-          select * from epc_split
-        inner join land_reg
-        on epc_split.PAON = land_reg.PAON AND
-        epc_split.postcode = land_reg.postcode;)
-        """
+        # This merge query joins the tables where the postcode is the same and where the epc address1 field contains
+        # the PAON from the land_reg table.
+        # Still need to check for edge cases...
+        merge_query = """select * from land_reg
+         inner join epc 
+         on land_reg.postcode = epc.postcode 
+         and land_reg.PAON like '%' || epc.address1|| '%'"""
+
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
 
 
@@ -162,6 +161,7 @@ prop.town = 'CHESTER'
 prop.check_postcode_data()
 # cur = prop.return_cursor()
 prop.create_merged_table()
+prop.merged_table.head()
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
