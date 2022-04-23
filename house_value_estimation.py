@@ -21,10 +21,10 @@ def sql_query_to_df(cursor, query):
     # First get the columns
     cols = []
     # Need to find better placeholder
-    cursor.executescript(query)
+    cursor.execute(query)
     column_names = cursor.description
     for i in column_names:
-        cols.append(i[0])
+        cols.append(i[0]) # The first value of this tuple is the column name--retrieve and append to list of cols
     cursor.execute(query)
     rows = cursor.fetchall()
     col_dict = {}
@@ -144,7 +144,6 @@ class Property:
          inner join epc 
          on land_reg.postcode = epc.postcode 
          and land_reg.PAON like '%' || epc.address1|| '%'"""
-
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
 
 
@@ -161,7 +160,7 @@ prop.town = 'CHESTER'
 prop.check_postcode_data()
 # cur = prop.return_cursor()
 prop.create_merged_table()
-prop.merged_table.head()
+print(prop.merged_table.head())
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
