@@ -135,7 +135,7 @@ class Property:
         epc_query = f"SELECT * FROM epc WHERE postcode like '{str(self.postcode_district)}"
         self.epc_table = sql_query_to_df(self.return_cursor(), epc_query)
         # Create Land Registry Price Paid DataFrame
-        land_reg_query = "SELECT * FROM land_reg WHERE postcode_district = " + str(self.postcode_district)
+        land_reg_query = f"SELECT * FROM land_reg WHERE postcode_district = {str(self.postcode_district)}"
         self.land_reg_table = sql_query_to_df(self.return_cursor(), land_reg_query)
         merge_query = """WITH epc_split as(
         select *, instr(address1,',') AS PAON
