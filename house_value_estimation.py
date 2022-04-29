@@ -3,6 +3,12 @@ import getpricepaid as land
 import sqlite3
 import datetime
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_percentage_error
+
 
 # Define path for API keys JSON file
 path = 'API Key.json'
@@ -58,6 +64,7 @@ class Property:
         self.merged_table = None
         self.epc_table = None
         self.land_reg_table = None
+        self.model = None
 
     def get_input(self):
         """
@@ -145,6 +152,24 @@ class Property:
          on land_reg.postcode = epc.postcode 
          and land_reg.PAON like '%' || epc.address1|| '%'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
+    # What other pre-model processing is needed? Removal of outliers?
+
+    def create_model(self):
+        ### Build Model based on the relationship between price paid and area
+
+        # Training data
+        X = np.array(self.merged_table['total_floor_area'])
+        X = X.reshape(-1, 1)
+
+        # Target data
+        y = np.array(self.merged_table['price_paid'])
+        y = y.reshape(-1, 1)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+        self.model = LinearRegression()
+        self.model.fit(X_train, y_train)
+
 
 
 
