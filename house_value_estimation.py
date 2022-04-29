@@ -65,6 +65,7 @@ class Property:
         self.epc_table = None
         self.land_reg_table = None
         self.model = None
+        self.model_perf = None
 
     def get_input(self):
         """
@@ -169,6 +170,14 @@ class Property:
 
         self.model = LinearRegression()
         self.model.fit(X_train, y_train)
+        y_pred = self.model.predict(X_test)
+        self.model_perf = {
+            "Coefficients": self.model.coef_,
+            "Mean squared error": mean_squared_error(y_test, y_pred),
+            "Coefficient of determination":r2_score(y_test, y_pred),
+            "MAPE":mean_absolute_percentage_error(y_test,y_pred)
+        }
+
 
 
 
