@@ -194,6 +194,10 @@ prop.town = 'CHESTER'
 prop.check_postcode_data()
 # cur = prop.return_cursor()
 prop.create_merged_table()
+prop.create_model()
+
+
+# If model is created for each postcode, should we create a seperate model class inhereted from a postcode class?
 print(prop.merged_table.head())
 
 # Quickly create a new table to log data sources and track when updated
