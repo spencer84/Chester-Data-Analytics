@@ -4,6 +4,7 @@ import sqlite3
 import datetime
 import pandas as pd
 import numpy as np
+import requests
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
@@ -74,12 +75,29 @@ class Property:
         """
         postcode = input("Postcode:")
         self.postcode = postcode
-        # Remove spaces from postcode and sterilize to avoid SQL injection
+        res = self.validate_postcode()
+        if res:
+            print('Postcode is valid')
+        else:
+            print('Postcode NOT valid. Try again.')
+            self.get_input()
         number = input("House/Flat Number:")
+        # Postcode doesn't need to be sterilized as it is verified, but other input values do
         self.number = number
         self.postcode_district = get_postcode_district(self.postcode)
         town = input("Town:")
         self.town = town
+
+    def validate_postcode(self):
+        """
+        Check the user-provided postcode and determine if it is a valid UK postcode
+        :return: Boolean value, whether postcode is valid or not
+        """
+        url = 'https://api.postcodes.io/postcodes/'+self.postcode+'/validate'
+        request = requests.get(url)
+        return request.json()['result']
+
+
 
     def check_postcode_data(self):
         # Connect to db
