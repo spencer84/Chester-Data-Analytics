@@ -194,9 +194,14 @@ class Property:
             "MAPE":mean_absolute_percentage_error(y_test,y_pred)
         }
 
+    def create_synthetic_features(self):
+        """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
+        used to extrapolate features based on neighbours."""
+
     def predict(self):
+        # Need to first check if an EPC record is available for the given record
         cur = self.return_cursor()
-        cur.execute("SELECT * WHERE")
+        cur.execute("SELECT * WHERE",)
         self.model.predict(y)
 
 
