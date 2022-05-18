@@ -82,7 +82,7 @@ class Property:
             print('Postcode NOT valid. Try again.')
             self.get_input()
         number = input("House/Flat Number:")
-        # Postcode doesn't need to be sterilized as it is verified, but other input values do
+        # Postcode doesn't need to be sanitized as it is verified, but other input values do
         self.number = number
         self.postcode_district = get_postcode_district(self.postcode)
         town = input("Town:")
@@ -96,8 +96,6 @@ class Property:
         url = 'https://api.postcodes.io/postcodes/'+self.postcode+'/validate'
         request = requests.get(url)
         return request.json()['result']
-
-
 
     def check_postcode_data(self):
         # Connect to db
@@ -196,6 +194,11 @@ class Property:
             "MAPE":mean_absolute_percentage_error(y_test,y_pred)
         }
 
+    def predict(self):
+        cur = self.return_cursor()
+        cur.execute("SELECT * WHERE")
+        self.model.predict(y)
+
 
 
 
@@ -205,18 +208,20 @@ class Property:
 
 # Identify property for estimate
 prop = Property()
-prop.postcode = 'CH1 1SD'
-prop.postcode_district = 'CH1'
-prop.town = 'CHESTER'
-# prop.get_input()
+# prop.postcode = 'CH1 1SD'
+# prop.postcode_district = 'CH1'
+# prop.town = 'CHESTER'
+prop.get_input()
 prop.check_postcode_data()
 # cur = prop.return_cursor()
 prop.create_merged_table()
 prop.create_model()
+prop.predict()
+
 
 
 # If model is created for each postcode, should we create a seperate model class inhereted from a postcode class?
-print(prop.merged_table.head())
+#print(prop.merged_table.head())
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
