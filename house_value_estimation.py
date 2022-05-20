@@ -5,6 +5,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import requests
+from sklearn import neighbors
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
@@ -170,6 +171,7 @@ class Property:
          and land_reg.PAON like '%' || epc.address1|| '%'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
     # What other pre-model processing is needed? Removal of outliers?
+        # Remove Null values?
 
     def create_model(self):
         ### Build Model based on the relationship between price paid and area
@@ -193,10 +195,24 @@ class Property:
             "Coefficient of determination":r2_score(y_test, y_pred),
             "MAPE":mean_absolute_percentage_error(y_test,y_pred)
         }
+    def check_features(self):
+        # Query data for specified property
+        prop_features = self.merged_table[(['Postcode']==self.postcode) & (['PAON']==self.number)]
+        try:
+            prop_features = prop_features[0] # Not sure how to handle more than one results...
+        except ValueError: # If there aren't any results, run the method to create synthetics
+            prop_features = self.create_synthetic_features()
+        finally:
+            self.prop_features = prop_features
 
+        # Check if the results have the needed features for the model
+        # If features not found, create synthetic features from results in the postcode
+        # and adjacent postcodes. Need to look up adjacent postcodes
     def create_synthetic_features(self):
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
         used to extrapolate features based on neighbours."""
+        knn = neighbors.KNeighborsClassifier(10, weights="distance")
+        knn.fit(self.merged_table[['']])
 
     def predict(self):
         # Need to first check if an EPC record is available for the given record
