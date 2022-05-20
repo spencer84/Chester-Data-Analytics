@@ -201,22 +201,29 @@ class Property:
             "Coefficient of determination":r2_score(y_test, y_pred),
             "MAPE":mean_absolute_percentage_error(y_test,y_pred)
         }
+
     def check_features(self):
         # Query data for specified property
         prop_features = self.merged_table[(['Postcode']==self.postcode) & (['PAON']==self.number)]
+        # Check if the results have the needed features for the model
         try:
             prop_features = prop_features[0] # Not sure how to handle more than one results...
         except ValueError: # If there aren't any results, run the method to create synthetics
+            # If features not found, create synthetic features from results in the postcode
+            # and adjacent postcodes. Need to look up adjacent postcodes
             prop_features = self.create_synthetic_features()
         finally:
             self.prop_features = prop_features
 
-        # Check if the results have the needed features for the model
-        # If features not found, create synthetic features from results in the postcode
-        # and adjacent postcodes. Need to look up adjacent postcodes
     def create_synthetic_features(self):
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
         used to extrapolate features based on neighbours."""
+        # Find the nearest postcodes
+        nearby_postcodes = find_nearby_postcodes()
+        # Including the original postcode
+        nearby_postcodes.append(self.postcode)
+        neighbors_df = self.merged_table[['Postcode'].isin(nearby_postcodes)]
+
         knn = neighbors.KNeighborsClassifier(10, weights="distance")
         knn.fit(self.merged_table[['']])
         features = knn.predict()
