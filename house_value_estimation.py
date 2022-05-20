@@ -53,6 +53,11 @@ def get_postcode_district(postcode):
     else:
         return postcode[:4]
 
+def find_nearby_postcodes(postcode):
+    url = 'https://api.postcodes.io/postcodes/'+postcode+'/nearest'
+    results = requests.get(url)
+    nearby_postcodes = [results.json()['result'][x]['postcode'] for x in results.json()['result']]
+    return nearby_postcodes
 
 class Property:
     def __init__(self):
@@ -66,6 +71,7 @@ class Property:
         self.merged_table = None
         self.epc_table = None
         self.land_reg_table = None
+        self.prop_features = None
         self.model = None
         self.model_perf = None
 
@@ -213,6 +219,8 @@ class Property:
         used to extrapolate features based on neighbours."""
         knn = neighbors.KNeighborsClassifier(10, weights="distance")
         knn.fit(self.merged_table[['']])
+        features = knn.predict()
+        return features
 
     def predict(self):
         # Need to first check if an EPC record is available for the given record
