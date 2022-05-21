@@ -177,10 +177,17 @@ class Property:
          on land_reg.postcode = epc.postcode 
          and land_reg.PAON like '%' || epc.address1|| '%'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
+        # *** Engineer additional features ***
         # Calculate time since the original transaction
         self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
+        self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
         self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
                                                                                 x-datetime.datetime.today())
+        # Calculate difference in sale price (per sq meter) from area average in a given year
+        self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
+        grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
+        # Need to parse this groupby object to get the area median cost per sq meter in the next step
+        self.merged_table['Area Median £ per Sq M'] = self.merged_table['']
 
     # What other pre-model processing is needed? Removal of outliers?
     # Remove Null values?
