@@ -11,7 +11,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.metrics import mean_absolute_percentage_error
 
-
 # Define path for API keys JSON file
 path = 'API Key.json'
 
@@ -32,7 +31,7 @@ def sql_query_to_df(cursor, query):
     cursor.execute(query)
     column_names = cursor.description
     for i in column_names:
-        cols.append(i[0]) # The first value of this tuple is the column name--retrieve and append to list of cols
+        cols.append(i[0])  # The first value of this tuple is the column name--retrieve and append to list of cols
     cursor.execute(query)
     rows = cursor.fetchall()
     col_dict = {}
@@ -53,11 +52,13 @@ def get_postcode_district(postcode):
     else:
         return postcode[:4]
 
+
 def find_nearby_postcodes(postcode):
-    url = 'https://api.postcodes.io/postcodes/'+postcode+'/nearest'
+    url = 'https://api.postcodes.io/postcodes/' + postcode + '/nearest'
     results = requests.get(url)
     nearby_postcodes = [results.json()['result'][x]['postcode'] for x in results.json()['result']]
     return nearby_postcodes
+
 
 class Property:
     def __init__(self):
@@ -100,7 +101,7 @@ class Property:
         Check the user-provided postcode and determine if it is a valid UK postcode
         :return: Boolean value, whether postcode is valid or not
         """
-        url = 'https://api.postcodes.io/postcodes/'+self.postcode+'/validate'
+        url = 'https://api.postcodes.io/postcodes/' + self.postcode + '/validate'
         request = requests.get(url)
         return request.json()['result']
 
@@ -113,7 +114,7 @@ class Property:
         results = cur.fetchall()
         # Find most recent EPC records
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
-        AND data_table = 'epc' )""", {"postcode":self.postcode_district})
+        AND data_table = 'epc' )""", {"postcode": self.postcode_district})
         max_epc = cur.fetchall()
         if max_epc[0] == (None,):
             print("No data exists for this postcode district. Getting EPC Data...")
@@ -135,7 +136,7 @@ class Property:
         land_data.create_connection('cda.db')
         land_data.create_cursor()
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode
-        AND data_table = 'land_reg')""",{"postcode":self.postcode_district})
+        AND data_table = 'land_reg')""", {"postcode": self.postcode_district})
         max_land_reg = cur.fetchall()
         print(str(max_land_reg))
         if max_land_reg[0] == (None,):
@@ -176,8 +177,13 @@ class Property:
          on land_reg.postcode = epc.postcode 
          and land_reg.PAON like '%' || epc.address1|| '%'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
+        # Calculate time since the original transaction
+        self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
+        self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
+                                                                                x-datetime.datetime.today())
+
     # What other pre-model processing is needed? Removal of outliers?
-        # Remove Null values?
+    # Remove Null values?
 
     def create_model(self):
         ### Build Model based on the relationship between price paid and area
@@ -198,17 +204,17 @@ class Property:
         self.model_perf = {
             "Coefficients": self.model.coef_,
             "Mean squared error": mean_squared_error(y_test, y_pred),
-            "Coefficient of determination":r2_score(y_test, y_pred),
-            "MAPE":mean_absolute_percentage_error(y_test,y_pred)
+            "Coefficient of determination": r2_score(y_test, y_pred),
+            "MAPE": mean_absolute_percentage_error(y_test, y_pred)
         }
 
     def check_features(self):
         # Query data for specified property
-        prop_features = self.merged_table[(['Postcode']==self.postcode) & (['PAON']==self.number)]
+        prop_features = self.merged_table[(['Postcode'] == self.postcode) & (['PAON'] == self.number)]
         # Check if the results have the needed features for the model
         try:
-            prop_features = prop_features[0] # Not sure how to handle more than one results...
-        except ValueError: # If there aren't any results, run the method to create synthetics
+            prop_features = prop_features[0]  # Not sure how to handle more than one results...
+        except ValueError:  # If there aren't any results, run the method to create synthetics
             # If features not found, create synthetic features from results in the postcode
             # and adjacent postcodes. Need to look up adjacent postcodes
             prop_features = self.create_synthetic_features()
@@ -232,14 +238,8 @@ class Property:
     def predict(self):
         # Need to first check if an EPC record is available for the given record
         cur = self.return_cursor()
-        cur.execute("SELECT * WHERE",)
+        cur.execute("SELECT * WHERE", )
         self.model.predict(y)
-
-
-
-
-
-
 
 
 # Identify property for estimate
@@ -254,10 +254,8 @@ prop.create_merged_table()
 prop.create_model()
 prop.predict()
 
-
-
 # If model is created for each postcode, should we create a seperate model class inhereted from a postcode class?
-#print(prop.merged_table.head())
+# print(prop.merged_table.head())
 
 # Quickly create a new table to log data sources and track when updated
 # test = 'CH2'
