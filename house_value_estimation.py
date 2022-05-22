@@ -244,10 +244,6 @@ class Property:
         # Convert this to a Numpy array
         return synth_features
 
-        knn.fit(self.neighbors[['']])
-        features = knn.predict()
-        return features
-
     def predict(self):
         # Need to first check if an EPC record is available for the given record
         cur = self.return_cursor()
