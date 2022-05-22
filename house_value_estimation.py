@@ -239,9 +239,12 @@ class Property:
         # Including the original postcode
         nearby_postcodes.append(self.postcode)
         neighbors_df = self.merged_table[['Postcode'].isin(nearby_postcodes)]
+        # Choose median value of neighbours
+        synth_features = neighbors_df.median()
+        # Convert this to a Numpy array
+        return synth_features
 
-        knn = neighbors.KNeighborsClassifier(10, weights="distance")
-        knn.fit(self.merged_table[['']])
+        knn.fit(self.neighbors[['']])
         features = knn.predict()
         return features
 
