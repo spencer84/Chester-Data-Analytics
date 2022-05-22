@@ -216,6 +216,9 @@ class Property:
         }
 
     def check_features(self):
+        """Evaluate whether it is necessary to create synthetic data for the given property. If the property
+        features cannot be found, then create and assign them using the methods found in the 'create synthetic features
+        method."""
         # Query data for specified property
         prop_features = self.merged_table[(['Postcode'] == self.postcode) & (['PAON'] == self.number)]
         # Check if the results have the needed features for the model
