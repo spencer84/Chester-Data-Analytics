@@ -56,9 +56,8 @@ def get_postcode_district(postcode):
 def find_nearby_postcodes(postcode):
     url = 'https://api.postcodes.io/postcodes/' + postcode + '/nearest'
     results = requests.get(url)
-    nearby_postcodes = [results.json()['result'][x]['postcode'] for x in results.json()['result']]
+    nearby_postcodes = [x['postcode'] for x in results.json()['result']]
     return nearby_postcodes
-
 
 class Property:
     def __init__(self):
@@ -240,7 +239,7 @@ class Property:
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
         used to extrapolate features based on neighbours."""
         # Find the nearest postcodes
-        nearby_postcodes = find_nearby_postcodes()
+        nearby_postcodes = find_nearby_postcodes(self.postcode)
         # Including the original postcode
         nearby_postcodes.append(self.postcode)
         neighbors_df = self.merged_table[['Postcode'].isin(nearby_postcodes)]
