@@ -66,7 +66,7 @@ def get_postcode_epc_data(key, postcode):
     cur = con.cursor()
     # Iterate through the results dataframe, adding each value
     for index, row in results.iterrows():
-        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn, postcode_area,row['postcode'],
+        cur.execute("INSERT INTO epc VALUES(?,?,?,?,?,?,?,?)", (row.address, row.address1, row.uprn,row['postcode'],
                                                                 row['current-energy-rating'], row['total-floor-area'],
                                                                 row['lodgement-datetime'], curr_time))
     # Is this redundant based on below code?

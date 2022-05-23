@@ -81,20 +81,23 @@ class Property:
         Get data from user
         :return: self, updated address attributes
         """
-        postcode = input("Postcode:")
-        self.postcode = postcode
+        if not self.postcode:
+            postcode = input("Postcode:")
+            self.postcode = postcode
         res = self.validate_postcode()
         if res:
             print('Postcode is valid')
         else:
             print('Postcode NOT valid. Try again.')
             self.get_input()
-        number = input("House/Flat Number:")
+        if not self.number:
+            number = input("House/Flat Number:")
         # Postcode doesn't need to be sanitized as it is verified, but other input values do
-        self.number = number
+            self.number = number
         self.postcode_district = get_postcode_district(self.postcode)
-        town = input("Town:")
-        self.town = town
+        if not self.town:
+            town = input("Town:")
+            self.town = town
 
     def validate_postcode(self):
         """
@@ -187,7 +190,7 @@ class Property:
         self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
         grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
         # Need to parse this groupby object to get the area median cost per sq meter in the next step
-        self.merged_table['Area Median £ per Sq M'] = self.merged_table['']
+        #self.merged_table['Area Median £ per Sq M'] = self.merged_table['']
 
     # What other pre-model processing is needed? Removal of outliers?
     # Remove Null values?
@@ -214,17 +217,19 @@ class Property:
             "Coefficient of determination": r2_score(y_test, y_pred),
             "MAPE": mean_absolute_percentage_error(y_test, y_pred)
         }
+        print("Model created")
 
     def check_features(self):
         """Evaluate whether it is necessary to create synthetic data for the given property. If the property
         features cannot be found, then create and assign them using the methods found in the 'create synthetic features
         method."""
         # Query data for specified property
-        prop_features = self.merged_table[(['Postcode'] == self.postcode) & (['PAON'] == self.number)]
+        print("Merged table cols:",self.merged_table.columns)
+        prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]
         # Check if the results have the needed features for the model
         try:
             prop_features = prop_features[0]  # Not sure how to handle more than one results...
-        except ValueError:  # If there aren't any results, run the method to create synthetics
+        except KeyError:  # If there aren't any results, run the method to create synthetics
             # If features not found, create synthetic features from results in the postcode
             # and adjacent postcodes. Need to look up adjacent postcodes
             prop_features = self.create_synthetic_features()
@@ -244,24 +249,27 @@ class Property:
         # Convert this to a Numpy array
         return synth_features
 
-    def predict(self):
-        # Need to first check if an EPC record is available for the given record
-        cur = self.return_cursor()
-        cur.execute("SELECT * WHERE", )
-        self.model.predict(y)
+    # def predict(self):
+    #     # Need to first check if an EPC record is available for the given record
+    #     cur = self.return_cursor()
+    #     cur.execute("SELECT * WHERE", )
+    #     self.model.predict(y)
 
 
 # Identify property for estimate
 prop = Property()
-# prop.postcode = 'CH1 1SD'
-# prop.postcode_district = 'CH1'
-# prop.town = 'CHESTER'
+prop.postcode = 'CH1 1SD'
+prop.postcode_district = 'CH1'
+prop.number = '12'
+prop.town = 'CHESTER'
 prop.get_input()
 prop.check_postcode_data()
 # cur = prop.return_cursor()
 prop.create_merged_table()
+prop.check_features()
+print(prop.prop_features)
 prop.create_model()
-prop.predict()
+#prop.predict()
 
 # If model is created for each postcode, should we create a seperate model class inhereted from a postcode class?
 # print(prop.merged_table.head())
