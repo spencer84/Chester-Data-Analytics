@@ -254,7 +254,7 @@ class Property:
         nearby_postcodes = find_nearby_postcodes(self.postcode)
         # Including the original postcode
         nearby_postcodes.append(self.postcode)
-        neighbors_df = self.merged_table[self.merged_table['postcode'].isin(nearby_postcodes)]
+        neighbors_df = self.epc_table[self.epc_table['postcode'].isin(nearby_postcodes)]
         # Choose median value of neighbours
         synth_features = np.median(neighbors_df['total_floor_area'])
         # Convert this to a Numpy array
