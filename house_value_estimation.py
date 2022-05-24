@@ -236,21 +236,16 @@ class Property:
             prop_features = np.array(prop_epc['total_floor_area'][0])
         elif len(prop_epc) == 0:
             # Parse through the dataframe looking for where the PAON appears
+            address_matched = False
             for index, row in postcode_epc_df.iterrows():
-                if self.number in row:
-                    prop_features = np.array(postcode_epc_df['total_floor_area'][0])
+                if self.number in row['address']:
+                    prop_features = np.array(postcode_epc_df['total_floor_area'][index])
+                    address_matched = True
                     break
-        #prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]['total_floor_area']
-        # Check if the results have the needed features for the model
-        try:
-            prop_features = np.array(prop_features[0])  # Not sure how to handle more than one results...
-            prop_features.reshape(-1, 1)
-        except KeyError:  # If there aren't any results, run the method to create synthetics
-            # If features not found, create synthetic features from results in the postcode
-            # and adjacent postcodes. Need to look up adjacent postcodes
-            prop_features = self.create_synthetic_features()
-        finally:
-            self.prop_features = prop_features
+            if not address_matched:
+                prop_features = self.create_synthetic_features()
+        self.prop_features = prop_features
+
 
     def create_synthetic_features(self):
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
