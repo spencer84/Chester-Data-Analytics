@@ -229,10 +229,10 @@ class Property:
         # Query data for specified property
         print("Merged table cols:",self.merged_table.columns)
         prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]['total_floor_area']
-
         # Check if the results have the needed features for the model
         try:
-            prop_features = prop_features[0]  # Not sure how to handle more than one results...
+            prop_features = np.array(prop_features[0])  # Not sure how to handle more than one results...
+            prop_features.reshape(-1, 1)
         except KeyError:  # If there aren't any results, run the method to create synthetics
             # If features not found, create synthetic features from results in the postcode
             # and adjacent postcodes. Need to look up adjacent postcodes
@@ -251,13 +251,11 @@ class Property:
         # Choose median value of neighbours
         synth_features = np.median(neighbors_df['total_floor_area'])
         # Convert this to a Numpy array
+        synth_features = synth_features.reshape(-1, 1)
         return synth_features
 
-    # def predict(self):
-    #     # Need to first check if an EPC record is available for the given record
-    #     cur = self.return_cursor()
-    #     cur.execute("SELECT * WHERE", )
-    #     self.model.predict(y)
+    def predict(self):
+        self.model.predict(self.prop_features)
 
 
 # Identify property for estimate
