@@ -244,7 +244,7 @@ class Property:
                     break
             if not address_matched:
                 prop_features = self.create_synthetic_features()
-        self.prop_features = prop_features
+        self.prop_features = prop_features.reshape(-1,1)
 
 
     def create_synthetic_features(self):
