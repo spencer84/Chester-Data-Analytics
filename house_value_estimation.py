@@ -5,7 +5,6 @@ import datetime
 import pandas as pd
 import numpy as np
 import requests
-from sklearn import neighbors
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
@@ -107,7 +106,12 @@ class Property:
         request = requests.get(url)
         return request.json()['result']
 
-    def check_postcode_data(self):
+    def check_postcode_data(self, request_input = True):
+        """
+        Check the database and identify whether data exists--both EPC and Land Registry--for a given postcode
+        :param request_input: Boolean; Identify whether to ask the user to update the data if it is older than 1 month
+        :return:
+        """
         # Connect to db
         print('Checking postcode data...')
         con = sqlite3.connect(self.db)
@@ -123,7 +127,7 @@ class Property:
             epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
         else:
             epc_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_epc[0][0])
-            if epc_age.days > 30:
+            if request_input and epc_age.days > 30:
                 update_epc = input("EPC Data is more than 30 days old. Update? y/n")
                 if update_epc == 'y':
                     epc.get_postcode_epc_data(epc.get_key(path), self.postcode_district)
@@ -146,7 +150,7 @@ class Property:
             land_data.get_full_price_paid()
         else:
             land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
-            if land_age.days > 30:
+            if request_input and land_age.days > 30:
                 update_land = input("Land Registry Data is more than 30 days old. Update? y/n")
                 if update_land == 'y':
                     land_data.get_full_price_paid()
@@ -224,7 +228,8 @@ class Property:
         method."""
         # Query data for specified property
         print("Merged table cols:",self.merged_table.columns)
-        prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]
+        prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]['total_floor_area']
+
         # Check if the results have the needed features for the model
         try:
             prop_features = prop_features[0]  # Not sure how to handle more than one results...
@@ -244,7 +249,7 @@ class Property:
         nearby_postcodes.append(self.postcode)
         neighbors_df = self.merged_table[self.merged_table['postcode'].isin(nearby_postcodes)]
         # Choose median value of neighbours
-        synth_features = neighbors_df.median()
+        synth_features = np.median(neighbors_df['total_floor_area'])
         # Convert this to a Numpy array
         return synth_features
 
@@ -262,15 +267,15 @@ prop.postcode_district = 'CH1'
 prop.number = '12'
 prop.town = 'CHESTER'
 prop.get_input()
-prop.check_postcode_data()
+prop.check_postcode_data(request_input=False)
 # cur = prop.return_cursor()
 prop.create_merged_table()
 prop.check_features()
 print(prop.prop_features)
 prop.create_model()
-#prop.predict()
+prop.predict()
 
-# If model is created for each postcode, should we create a seperate model class inhereted from a postcode class?
+# If model is created for each postcode, should we create a separate model class inherited from a postcode class?
 # print(prop.merged_table.head())
 
 # Quickly create a new table to log data sources and track when updated
