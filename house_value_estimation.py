@@ -227,8 +227,20 @@ class Property:
         features cannot be found, then create and assign them using the methods found in the 'create synthetic features
         method."""
         # Query data for specified property
-        print("Merged table cols:",self.merged_table.columns)
-        prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]['total_floor_area']
+        # Use the epc df and filter down to just the given postcode
+        postcode_epc_df = self.epc_table[self.epc_table['postcode']==self.postcode]
+        # Parse through the address field to see if the house number/name is in the address field
+        # Check first if there is a perfect match in the address
+        prop_epc = postcode_epc_df[postcode_epc_df['address']==self.number]
+        if len(prop_epc) >= 1:
+            prop_features = np.array(prop_epc['total_floor_area'][0])
+        elif len(prop_epc) == 0:
+            # Parse through the dataframe looking for where the PAON appears
+            for index, row in postcode_epc_df.iterrows():
+                if self.number in row:
+                    prop_features = np.array(postcode_epc_df['total_floor_area'][0])
+                    break
+        #prop_features = self.merged_table[(self.merged_table['postcode'] == self.postcode) & (self.merged_table['PAON'] == self.number)]['total_floor_area']
         # Check if the results have the needed features for the model
         try:
             prop_features = np.array(prop_features[0])  # Not sure how to handle more than one results...
@@ -262,7 +274,7 @@ class Property:
 prop = Property()
 prop.postcode = 'CH1 1SD'
 prop.postcode_district = 'CH1'
-prop.number = '12'
+prop.number = '21'
 prop.town = 'CHESTER'
 prop.get_input()
 prop.check_postcode_data(request_input=False)
