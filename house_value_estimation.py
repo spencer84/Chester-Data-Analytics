@@ -200,13 +200,15 @@ class Property:
 
     def create_model(self):
         ### Build Model based on the relationship between price paid and area
-
+        # Subset merged table to use only data from last year
+        one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
+        recent_df = self.merged_table[self.merged_table['transaction_date']>one_year_ago]
         # Training data
-        X = np.array(self.merged_table['total_floor_area'])
+        X = np.array(recent_df['total_floor_area'])
         X = X.reshape(-1, 1)
 
         # Target data
-        y = np.array(self.merged_table['price_paid'])
+        y = np.array(recent_df['price_paid'])
         y = y.reshape(-1, 1)
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
@@ -262,7 +264,9 @@ class Property:
         return synth_features
 
     def predict(self):
-        self.model.predict(self.prop_features)
+        self.predicted_value = self.model.predict(self.prop_features)
+        print(self.predicted_value)
+
 
 
 # Identify property for estimate
