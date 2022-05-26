@@ -188,7 +188,7 @@ class Property:
         self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
         self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
         self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
-                                                                                x-datetime.datetime.today())
+            -(x-datetime.datetime.today()).days)
         # Calculate difference in sale price (per sq meter) from area average in a given year
         self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
         grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
@@ -201,8 +201,7 @@ class Property:
     def create_model(self):
         ### Build Model based on the relationship between price paid and area
         # Subset merged table to use only data from last year
-        one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
-        recent_df = self.merged_table[self.merged_table['transaction_date']>one_year_ago]
+        recent_df = self.merged_table[self.merged_table['Days Since Transaction']<=365]
         # Training data
         X = np.array(recent_df['total_floor_area'])
         X = X.reshape(-1, 1)
