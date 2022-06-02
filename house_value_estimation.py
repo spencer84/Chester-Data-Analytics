@@ -58,6 +58,7 @@ def find_nearby_postcodes(postcode):
     nearby_postcodes = [x['postcode'] for x in results.json()['result']]
     return nearby_postcodes
 
+
 class Property:
     def __init__(self):
         self.postcode = None
@@ -224,9 +225,6 @@ class Property:
         print("Model created")
 
     def check_features(self):
-        """Evaluate whether it is necessary to create synthetic data for the given property. If the property
-        features cannot be found, then create and assign them using the methods found in the 'create synthetic features
-        method."""
         # Query data for specified property
         # Use the epc df and filter down to just the given postcode
         postcode_epc_df = self.epc_table[self.epc_table['postcode']==self.postcode]
@@ -235,7 +233,7 @@ class Property:
         prop_epc = postcode_epc_df[postcode_epc_df['address']==self.number]
         if len(prop_epc) >= 1:
             prop_features = np.array(prop_epc['total_floor_area'][0])
-        elif len(prop_epc) == 0:
+        else:
             # Parse through the dataframe looking for where the PAON appears
             address_matched = False
             for index, row in postcode_epc_df.iterrows():
