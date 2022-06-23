@@ -12,9 +12,15 @@ cur.execute("""CREATE TABLE merged AS select distinct * from land_reg
          on land_reg.postcode = epc.postcode 
          and land_reg.PAON like '%' || epc.address1|| '%'""")
 
+
+# Need to take only most recent record from land reg data
+
 # How many unique combinations are being captured?
 
-cur.execute("select count(distinct address) from (select PAON || ' '|| postcode AS address from land_reg)")
+cur.execute("""select count(distinct address) from (select PAON || ' '|| postcode AS address from land_reg)""")
+
+cur.execute("""select count(address) as address_count, address, transaction_date from (select PAON || ' '|| postcode AS address
+            , transaction_date from land_reg) group by address order by address_count desc""")
 
 land_reg_count = cur.fetchall()
 
