@@ -7,11 +7,13 @@ cur = conn.cursor()
 
 # Create a merged table in the CDA database
 
-cur.execute("""WITH land as (select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode)
-         CREATE TABLE merged AS (land
+cur.execute("""CREATE TABLE recent_land as 
+select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode""")
+
+cur.execute("""CREATE TABLE merged AS (recent_land
          inner join epc 
-         on land.postcode = epc.postcode 
-         and land.PAON like '%' || epc.address1|| '%')""")
+         on recent_land.postcode = epc.postcode 
+         and recent_land.PAON like '%' || epc.address1|| '%')""")
 
 
 # Need to take only most recent record from land reg data
