@@ -29,6 +29,26 @@ def get_key(path):
     # Need to encode the username and key then strip off the extra bits
     encoded_api_key = str(base64.b64encode(bytes(username + ':' + key, 'utf-8')))[1:].replace('\'', "")
     return encoded_api_key
+
+def clean_data(x):
+    """
+    Parse the address1 field of the epc data to come up with the best value to use for the PAON (house name/number
+    to use in merging with the land registry dataset.
+    :param x: Value of address1
+    :return: Best guess for house name/number to use as PAON
+    """
+    if ',' in x:
+        return x.split(',')[0]
+    else:
+        split = x.split(' ')
+        for i in split:
+            try:
+                num = int(split[0])
+                return num
+            except:
+                pass
+        return split[0]
+
 def get_postcode_epc_data(key, postcode):
     """" Returns a pandas dataframe containing all results for the given postcode.
     This can be written to a CSV file for later processing.

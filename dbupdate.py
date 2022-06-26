@@ -10,10 +10,10 @@ cur = conn.cursor()
 cur.execute("""CREATE TABLE recent_land as 
 select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode""")
 
-cur.execute("""CREATE TABLE merged AS (recent_land
+cur.execute("""CREATE TABLE merged AS select * from recent_land
          inner join epc 
          on recent_land.postcode = epc.postcode 
-         and recent_land.PAON like '%' || epc.address1|| '%')""")
+         and recent_land.PAON like '%' || epc.address1|| '%'""")
 
 
 # Need to take only most recent record from land reg data
