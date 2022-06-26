@@ -17,7 +17,7 @@ def create_db(db_name='cda.db'):
         :return:
         """
         cursor.execute('''CREATE TABLE IF NOT EXISTS epc 
-                    (address text, address1 text ,uprn text,postcode text, current_energy_rating text, 
+                    (address text, address1 text ,house_number text,uprn text,postcode text, current_energy_rating text, 
                     total_floor_area real, lodgement_datetime text, query_date text
                     )''')
         return
