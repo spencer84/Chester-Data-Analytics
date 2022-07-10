@@ -1,7 +1,7 @@
 import sqlite3
 import getepcdata as epc
 import datetime
-import getpricepaid
+import getpricepaid as land_data
 
 conn = sqlite3.connect('cda.db')
 cur = conn.cursor()
@@ -10,7 +10,8 @@ cur = conn.cursor()
 def update_all(postcode_area):
     """
     Update the data from both EPC records and
-    :param postcode_area:
+    :param postcode_area: A given postcode area to update. All records with a postcode starting with this figure will
+    be updated.
     :return:
     """
     # Update EPC records
@@ -26,9 +27,20 @@ def update_all(postcode_area):
             print("EPC data is 1 week old. Updating records...")
             epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
             print("EPC data updated.")
-        else:
-            pass
+
     # Update Land Registry Records
+    cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode
+            AND data_table = 'land_reg')""", {"postcode": self.postcode_district})
+    max_land_reg = cur.fetchall()
+    print(str(max_land_reg))
+    if max_land_reg[0] == (None,):
+        print("No data exists for this postcode district. Getting Land Registry Data...")
+        land_data.get_full_price_paid()
+    else:
+        land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
+        if land_age.days >= 7:
+            land_data.get_full_price_paid()
+
 
 
 
