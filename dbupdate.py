@@ -3,6 +3,9 @@ import getepcdata as epc
 import datetime
 import getpricepaid as land
 
+# Define path for API keys JSON file
+path = 'API Key.json'
+
 conn = sqlite3.connect('cda.db')
 cur = conn.cursor()
 
