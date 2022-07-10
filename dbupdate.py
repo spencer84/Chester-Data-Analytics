@@ -1,9 +1,36 @@
 import sqlite3
-import getepcdata
+import getepcdata as epc
+import datetime
 import getpricepaid
 
 conn = sqlite3.connect('cda.db')
 cur = conn.cursor()
+
+
+def update_all(postcode_area):
+    """
+    Update the data from both EPC records and
+    :param postcode_area:
+    :return:
+    """
+    # Update EPC records
+    cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
+            AND data_table = 'epc' )""", {"postcode": postcode_area})
+    max_epc = cur.fetchall()
+    if max_epc[0] == (None,):
+        print("No data exists for this postcode district. Getting EPC Data...")
+        epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
+    else:
+        epc_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_epc[0][0])
+        if epc_age.days >= 7:
+            print("EPC data is 1 week old. Updating records...")
+            epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
+            print("EPC data updated.")
+        else:
+            pass
+    # Update Land Registry Records
+
+
 
 # Create a merged table in the CDA database
 
