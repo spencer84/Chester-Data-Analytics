@@ -9,7 +9,6 @@ path = 'API Key.json'
 conn = sqlite3.connect('cda.db')
 cur = conn.cursor()
 
-
 def update_epc(cur,postcode_area, max_days = 7):
     """
     Update the EPC records for all postcodes in a given postcode area.
@@ -66,6 +65,17 @@ def create_merged_table(cur):
              inner join epc 
              on recent_land.postcode = epc.postcode 
              and recent_land.PAON like '%' || epc.address1|| '%'""")
+
+    # # *** Engineer additional features ***
+    # # Calculate time since the original transaction
+    # self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
+    # self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
+    # self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
+    #                                                                                           -(
+    #                                                                                                       x - datetime.datetime.today()).days)
+    # # Calculate difference in sale price (per sq meter) from area average in a given year
+    # self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area'] / self.merged_table['price_paid']
+    # grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M': 'median'})
 
 
 # Need to take only most recent record from land reg data
