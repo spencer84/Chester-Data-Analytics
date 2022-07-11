@@ -6,7 +6,8 @@ import getpricepaid as land
 # Define path for API keys JSON file
 path = 'API Key.json'
 
-def update_epc(cur,postcode_area, max_days = 7):
+
+def update_epc(cur, postcode_area, max_days=7):
     """
     Update the EPC records for all postcodes in a given postcode area.
     :param postcode_area: The postcode area (prefix) to update
@@ -26,9 +27,9 @@ def update_epc(cur,postcode_area, max_days = 7):
             print("EPC data is more than 1 week old. Updating records...")
             epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
             print(f"EPC data updated for {postcode_area}.")
-    cur.commit()
 
-def update_land(cur, town, max_days = 7):
+
+def update_land(cur, town, max_days=7):
     """
     Update the Land Registry records for all properties in a given town.
     :param town: The town to update records for.
@@ -37,7 +38,8 @@ def update_land(cur, town, max_days = 7):
     """
     land_data = land.LandData()
     land_data.town = town
-    cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode
+    land_data.cur = cur
+    cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :town
             AND data_table = 'land_reg')""", {"town": town})
     max_land_reg = cur.fetchall()
     print(str(max_land_reg))
@@ -50,21 +52,20 @@ def update_land(cur, town, max_days = 7):
             print("Land Registry data is more than 1 week old. Updating records...")
             land_data.get_full_price_paid()
             print(f"Land Registry data updated for {town}.")
-    cur.commit()
 
 
 # Create a merged table in the CDA database
 def create_merged_table(cur):
     print("Creating Merged table...")
-    cur.execute("""DROP TABLE IF EXISTS recent_land;
-    CREATE TABLE recent_land as 
+    cur.execute("""DROP TABLE IF EXISTS recent_land;""")
+    cur.execute("""CREATE TABLE recent_land as 
     select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode""")
 
-    cur.execute("""DROP TABLE IF EXISTS merged;
-    CREATE TABLE merged AS select * from recent_land
+    cur.execute("""DROP TABLE IF EXISTS merged;""")
+    cur.execute(""""CREATE TABLE merged AS select * from recent_land
              inner join epc 
              on recent_land.postcode = epc.postcode 
-             and recent_land.PAON like '%' || epc.address1|| '%'""")
+             and recent_land.PAON like '%' || epc.house_number|| '%'""")
 
     # Delete older transactions
     print("Merged table created! Dropping duplicates...")
@@ -75,7 +76,6 @@ def create_merged_table(cur):
     ) 
     """)
     print("Duplicates deleted.")
-    cur.commit()
 
     # # *** Engineer additional features ***
     # # Calculate time since the original transaction
@@ -122,6 +122,7 @@ def update_db(conn: object, postcode_areas: object, towns: object) -> object:
     create_merged_table(cur)
     print("All records updated.")
 
+
 towns = ['Chester']
 
 postcode_areas = ['CH1']
@@ -129,4 +130,4 @@ postcode_areas = ['CH1']
 if __name__ == "__main__":
     conn = sqlite3.connect('cda.db')
     update_db(conn, postcode_areas, towns)
-    conn.close()
+    conn.commit()
