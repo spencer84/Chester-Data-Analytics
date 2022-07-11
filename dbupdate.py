@@ -27,7 +27,7 @@ def update_epc(cur,postcode_area, max_days = 7):
         if epc_age.days >= max_days:
             print("EPC data is more than 1 week old. Updating records...")
             epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
-            print("EPC data updated.")
+            print(f"EPC data updated for {postcode_area}.")
 
 def update_land(cur, town, max_days = 7):
     """
@@ -43,18 +43,19 @@ def update_land(cur, town, max_days = 7):
     max_land_reg = cur.fetchall()
     print(str(max_land_reg))
     if max_land_reg[0] == (None,):
-        print("No data exists for this postcode district. Getting Land Registry Data...")
+        print("No data exists for this town. Getting Land Registry Data...")
         land_data.get_full_price_paid()
     else:
         land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
         if land_age >= max_days:
             print("Land Registry data is more than 1 week old. Updating records...")
             land_data.get_full_price_paid()
-            print("Land Registry data updated.")
+            print(f"Land Registry data updated for {town}.")
 
 
 # Create a merged table in the CDA database
 def create_merged_table(cur):
+    print("Creating Merged table...")
     cur.execute("""DROP TABLE IF EXISTS recent_land;
     CREATE TABLE recent_land as 
     select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode""")
@@ -66,13 +67,14 @@ def create_merged_table(cur):
              and recent_land.PAON like '%' || epc.address1|| '%'""")
 
     # Delete older transactions
-
+    print("Merged table created! Dropping duplicates...")
     cur.execute("""DELETE FROM merged
     WHERE transaction_date < (
     SELECT MAX(transaction_date) FROM merged t2 WHERE merged.postcode = t2.postcode
     AND merged.PAON = t2.PAON
     ) 
     """)
+    print("Duplicates deleted.")
 
     # # *** Engineer additional features ***
     # # Calculate time since the original transaction
@@ -107,7 +109,7 @@ def create_merged_table(cur):
 
 
 # Program to update the database and perform all data transactions
-def update_db(conn, postcode_areas, towns):
+def update_db(conn: object, postcode_areas: object, towns: object) -> object:
     """Update the land registry table with records for a given postcode"""
     # Create a cursor from the database connection
     cur = conn.cursor()
@@ -117,7 +119,11 @@ def update_db(conn, postcode_areas, towns):
     for town in towns:
         update_land(cur, town)
     create_merged_table(cur)
+    print("All records updated.")
 
 towns = ['Chester']
 
 postcode_areas = ['CH1']
+
+if "__name__"=="__main__":
+    update_db(conn, postcode_areas, towns)
