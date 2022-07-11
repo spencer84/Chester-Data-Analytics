@@ -107,11 +107,17 @@ def create_merged_table(cur):
 
 
 # Program to update the database and perform all data transactions
-def update_db(conn, postcode_area, town):
+def update_db(conn, postcode_areas, towns):
     """Update the land registry table with records for a given postcode"""
     # Create a cursor from the database connection
     cur = conn.cursor()
-    # Update EPC
-    update_epc()
-    update_land()
-    create_merged_table()
+    # Update EPC and Land Registry data for every postcode and town provided.
+    for postcode_area in postcode_areas:
+        update_epc(cur, postcode_area)
+    for town in towns:
+        update_land(cur, town)
+    create_merged_table(cur)
+
+towns = ['Chester']
+
+postcode_areas = ['CH1']
