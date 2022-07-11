@@ -41,8 +41,11 @@ class LandData:
         self.cur = self.conn.cursor()
 
     def close_connection(self):
-        self.conn.commit()
-        self.conn.close()
+        try:
+            self.conn.commit()
+            self.conn.close()
+        except AttributeError:
+            pass
         print("Connection closed")
 
     def price_paid_query(self):
@@ -102,8 +105,7 @@ class LandData:
         curr_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for area in self.unique_postcode_areas:
             self.cur.execute("INSERT INTO data_log VALUES(?,?,?)", (area, 'land_reg', curr_time))
-        self.conn.commit()
-        self.conn.close()
+        self.close_connection()
         return
 
 # This is just for testing
