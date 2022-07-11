@@ -87,6 +87,8 @@ class LandData:
             self.results_to_add.put(vals_to_insert)
 
     def get_full_price_paid(self):
+        # Query the price paid data first to add to the queue
+        self.price_paid_query()
         end_of_results = False
         while not end_of_results:  # Recursion until a page length less than max achieved
             self.price_paid_query()
