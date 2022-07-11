@@ -39,8 +39,7 @@ def update_land(cur, town, max_days=7):
     land_data = land.LandData()
     land_data.town = town
     land_data.cur = cur
-    cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :town
-            AND data_table = 'land_reg')""", {"town": town})
+    cur.execute("""SELECT MAX(query_date) FROM (SELECT * FROM land_reg WHERE town = :town)""", {"town": town})
     max_land_reg = cur.fetchall()
     print(str(max_land_reg))
     if max_land_reg[0] == (None,):
@@ -62,10 +61,10 @@ def create_merged_table(cur):
     select *, max(transaction_date) as most_recent_transaction from land_reg group by paon, postcode""")
 
     cur.execute("""DROP TABLE IF EXISTS merged;""")
-    cur.execute(""""CREATE TABLE merged AS select * from recent_land
+    cur.execute("""CREATE TABLE merged AS select * from recent_land
              inner join epc 
              on recent_land.postcode = epc.postcode 
-             and recent_land.PAON like '%' || epc.house_number || '%'""")
+             and recent_land.PAON  = epc.house_number""")
 
     # Delete older transactions
     print("Merged table created! Dropping duplicates...")
