@@ -6,8 +6,6 @@ import getpricepaid as land
 # Define path for API keys JSON file
 path = 'API Key.json'
 
-conn = sqlite3.connect('cda.db')
-
 def update_epc(cur,postcode_area, max_days = 7):
     """
     Update the EPC records for all postcodes in a given postcode area.
@@ -28,6 +26,7 @@ def update_epc(cur,postcode_area, max_days = 7):
             print("EPC data is more than 1 week old. Updating records...")
             epc.get_postcode_epc_data(epc.get_key(path), postcode_area)
             print(f"EPC data updated for {postcode_area}.")
+    cur.commit()
 
 def update_land(cur, town, max_days = 7):
     """
@@ -51,6 +50,7 @@ def update_land(cur, town, max_days = 7):
             print("Land Registry data is more than 1 week old. Updating records...")
             land_data.get_full_price_paid()
             print(f"Land Registry data updated for {town}.")
+    cur.commit()
 
 
 # Create a merged table in the CDA database
@@ -75,6 +75,7 @@ def create_merged_table(cur):
     ) 
     """)
     print("Duplicates deleted.")
+    cur.commit()
 
     # # *** Engineer additional features ***
     # # Calculate time since the original transaction
@@ -125,5 +126,7 @@ towns = ['Chester']
 
 postcode_areas = ['CH1']
 
-if "__name__"=="__main__":
+if __name__ == "__main__":
+    conn = sqlite3.connect('cda.db')
     update_db(conn, postcode_areas, towns)
+    conn.close()
