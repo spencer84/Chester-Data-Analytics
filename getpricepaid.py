@@ -95,7 +95,6 @@ class LandData:
             self.page += 1
             if self.results_len < 200:
                 end_of_results = True
-            print(self.page)
             # Write results to database
         print("Writing results to db")
         self.data_to_db()

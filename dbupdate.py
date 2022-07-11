@@ -48,7 +48,7 @@ def update_land(cur, town, max_days=7):
         land_data.get_full_price_paid()
     else:
         land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
-        if land_age >= max_days:
+        if land_age.days >= max_days:
             print("Land Registry data is more than 1 week old. Updating records...")
             land_data.get_full_price_paid()
             print(f"Land Registry data updated for {town}.")
@@ -65,7 +65,7 @@ def create_merged_table(cur):
     cur.execute(""""CREATE TABLE merged AS select * from recent_land
              inner join epc 
              on recent_land.postcode = epc.postcode 
-             and recent_land.PAON like '%' || epc.house_number|| '%'""")
+             and recent_land.PAON like '%' || epc.house_number || '%'""")
 
     # Delete older transactions
     print("Merged table created! Dropping duplicates...")
@@ -123,7 +123,7 @@ def update_db(conn: object, postcode_areas: object, towns: object) -> object:
     print("All records updated.")
 
 
-towns = ['Chester']
+towns = ['CHESTER']
 
 postcode_areas = ['CH1']
 
