@@ -186,10 +186,10 @@ class Property:
         # *** Engineer additional features ***
         # Move this to where the merged table is created.
         # Calculate time since the original transaction
-        # self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
-        # self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
-        # self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
-        #     -(x-datetime.datetime.today()).days)
+        self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
+        self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
+        self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
+            -(x-datetime.datetime.today()).days)
         # # Calculate difference in sale price (per sq meter) from area average in a given year
         # self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
         # grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
@@ -248,7 +248,9 @@ class Property:
 
     def create_synthetic_features(self):
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
-        used to extrapolate features based on neighbours."""
+        used to extrapolate features based on neighbours.
+        :returns: An estimated value for floor area"""
+
         # Find the nearest postcodes
         nearby_postcodes = find_nearby_postcodes(self.postcode)
         # Including the original postcode
@@ -256,7 +258,7 @@ class Property:
         neighbors_df = self.epc_table[self.epc_table['postcode'].isin(nearby_postcodes)]
         # Choose median value of neighbours
         synth_features = np.median(neighbors_df['total_floor_area'])
-        # Convert this to a Numpy array
+        # Convert this to a NumPy array
         synth_features = synth_features.reshape(-1, 1)
         return synth_features
 
