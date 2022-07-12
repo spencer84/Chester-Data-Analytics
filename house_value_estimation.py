@@ -180,10 +180,8 @@ class Property:
         # This merge query joins the tables where the postcode is the same and where the epc address1 field contains
         # the PAON from the land_reg table.
         # Still need to check for edge cases...
-        merge_query = """select * from land_reg
-         inner join epc 
-         on land_reg.postcode = epc.postcode 
-         and land_reg.PAON like '%' || epc.address1|| '%'"""
+        merge_query = f"""select * from merged
+        where postcode_district = '{str(self.postcode_district)}'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
         # *** Engineer additional features ***
         # Calculate time since the original transaction
