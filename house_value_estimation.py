@@ -184,14 +184,15 @@ class Property:
         where postcode_district = '{str(self.postcode_district)}'"""
         self.merged_table = sql_query_to_df(self.return_cursor(), merge_query)
         # *** Engineer additional features ***
+        # Move this to where the merged table is created.
         # Calculate time since the original transaction
-        self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
-        self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
-        self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
-            -(x-datetime.datetime.today()).days)
-        # Calculate difference in sale price (per sq meter) from area average in a given year
-        self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
-        grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
+        # self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
+        # self.merged_table['transaction_year'] = self.merged_table['transaction_date'].apply(lambda x: x.year)
+        # self.merged_table['Days Since Transaction'] = self.merged_table['transaction_date'].apply(lambda x:
+        #     -(x-datetime.datetime.today()).days)
+        # # Calculate difference in sale price (per sq meter) from area average in a given year
+        # self.merged_table['Cost Per Sq M'] = self.merged_table['total_floor_area']/self.merged_table['price_paid']
+        # grouped_by_year = self.merged_table.groupby('transaction_year').agg({'Cost Per Sq M':'median'})
         # Need to parse this groupby object to get the area median cost per sq meter in the next step
         #self.merged_table['Area Median £ per Sq M'] = self.merged_table['']
 
