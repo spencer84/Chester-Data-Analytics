@@ -199,15 +199,19 @@ class Property:
 
     # What other pre-model processing is needed? Removal of outliers?
     # Remove Null values?
-    # def check_for_model(self):
-    #     """Identify whether a model exists for a given postcode district"""
-    #     if model exists:
-    #         read in model
-    #         return
-    #     else:
-    #         self.create_model()
+    def check_for_model(self):
+        """Identify whether a model exists for a given postcode district"""
+        try:
+            file_path = './Models/' + self.postcode_district + '.pickle'
+            with open(file_path, 'rb') as model_dir:
+                self.model = pickle.load(model_dir)
+        except FileNotFoundError:
+            # If the pickle doesn't exist for that postcode district, then go through the steps to create a new model
+            self.create_model()
 
     def create_model(self):
+        self.create_merged_table()
+        self.check_features()
         ### Build Model based on the relationship between price paid and area
         # Subset merged table to use only data from last year
         recent_df = self.merged_table[self.merged_table['Days Since Transaction']<=365]
@@ -237,8 +241,6 @@ class Property:
         file_path = './Models/'+self.postcode_district+'.pickle'
         with open(file_path, 'wb') as model_dir:
             pickle.dump(self.model, model_dir)
-
-
 
     def check_features(self):
         # Query data for specified property
@@ -295,17 +297,18 @@ check_postcode_start = time.time()
 prop.check_postcode_data(request_input=False)
 check_postcode_end = time.time()-check_postcode_start
 print(f"Time to run Check Postcode Data:{check_postcode_end}")
-# cur = prop.return_cursor()
-create_merged_start = time.time()
-prop.create_merged_table()
-create_merged_end = time.time()-create_merged_start
-print(f"Time to run Create Merged Table:{create_merged_end}")
-check_features_start = time.time()
-prop.check_features()
-check_features_end = time.time() - check_features_start
-print(f"Time to Check Features:{check_features_end}")
-print(prop.prop_features)
-prop.create_model()
+prop.check_for_model()
+# # cur = prop.return_cursor()
+# create_merged_start = time.time()
+# prop.create_merged_table()
+# create_merged_end = time.time()-create_merged_start
+# print(f"Time to run Create Merged Table:{create_merged_end}")
+# check_features_start = time.time()
+# prop.check_features()
+# check_features_end = time.time() - check_features_start
+# print(f"Time to Check Features:{check_features_end}")
+# print(prop.prop_features)
+# prop.create_model()
 prop.predict()
 print("Pickling the model")
 prop.model_to_pickle()
