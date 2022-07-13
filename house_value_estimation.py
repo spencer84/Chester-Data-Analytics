@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import numpy as np
 import requests
+import pickle
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
@@ -198,6 +199,13 @@ class Property:
 
     # What other pre-model processing is needed? Removal of outliers?
     # Remove Null values?
+    # def check_for_model(self):
+    #     """Identify whether a model exists for a given postcode district"""
+    #     if model exists:
+    #         read in model
+    #         return
+    #     else:
+    #         self.create_model()
 
     def create_model(self):
         ### Build Model based on the relationship between price paid and area
@@ -223,6 +231,14 @@ class Property:
             "MAPE": mean_absolute_percentage_error(y_test, y_pred)
         }
         print("Model created")
+
+    def model_to_pickle(self):
+        """Write the created model to a pickle file"""
+        file_path = './Models/'+self.postcode_district+'.pickle'
+        with open(file_path, 'wb') as model_dir:
+            pickle.dump(self.model, model_dir)
+
+
 
     def check_features(self):
         # Query data for specified property
@@ -291,6 +307,8 @@ print(f"Time to Check Features:{check_features_end}")
 print(prop.prop_features)
 prop.create_model()
 prop.predict()
+print("Pickling the model")
+prop.model_to_pickle()
 
 # If model is created for each postcode, should we create a separate model class inherited from a postcode class?
 # print(prop.merged_table.head())
