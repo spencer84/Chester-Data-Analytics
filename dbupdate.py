@@ -84,7 +84,7 @@ def create_postcode_district_features(cur):
     :param cur: Cursor object for database
     """
     cur.execute("""
-    SELECT postcode, median(total_floor_area) as median_floor_area from epc GROUP BY postcode;
+    SELECT postcode, average(total_floor_area) as avg_floor_area from epc GROUP BY postcode;
     """)
 
 
