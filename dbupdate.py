@@ -76,6 +76,18 @@ def create_merged_table(cur):
     """)
     print("Duplicates deleted.")
 
+
+def create_postcode_district_features(cur):
+    """Create a database to reflect the median features of a given postcode. This exists so that if a user wants to
+    estimate a property value but the exact property isn't in the merged database this will serve as a very loose
+    approximation.
+    :param cur: Cursor object for database
+    """
+    cur.execute("""
+    SELECT postcode, median(total_floor_area) as median_floor_area from epc GROUP BY postcode;
+    """)
+
+
     # # *** Engineer additional features ***
     # # Calculate time since the original transaction
     # self.merged_table['transaction_date'] = pd.to_datetime(self.merged_table['transaction_date'])
@@ -120,6 +132,7 @@ def update_db(conn: object, postcode_areas: object, towns: object) -> object:
         update_land(cur, town)
     create_merged_table(cur)
     print("All records updated.")
+    create_postcode_district_features(cur)
 
 
 towns = ['CHESTER']
