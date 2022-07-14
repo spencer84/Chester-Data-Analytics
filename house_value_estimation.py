@@ -205,7 +205,8 @@ class Property:
             file_path = './Models/' + self.postcode_district + '.pickle'
             with open(file_path, 'rb') as model_dir:
                 self.model = pickle.load(model_dir)
-        except FileNotFoundError:
+                self.check_features()
+        except FileNotFoundError and EOFError:
             # If the pickle doesn't exist for that postcode district, then go through the steps to create a new model
             self.create_model()
 
@@ -307,7 +308,7 @@ prop.check_for_model()
 # prop.check_features()
 # check_features_end = time.time() - check_features_start
 # print(f"Time to Check Features:{check_features_end}")
-# print(prop.prop_features)
+print(prop.prop_features)
 # prop.create_model()
 prop.predict()
 print("Pickling the model")
