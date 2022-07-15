@@ -252,7 +252,8 @@ class Property:
         features_result = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
         if features_result == 0:
-
+            cur.execute(f"select * from avg_var_table where postcode = {self.postcode}")
+            features_result = cur.fetchall()
         postcode_epc_df = self.epc_table[self.epc_table['postcode']==self.postcode]
         # Parse through the address field to see if the house number/name is in the address field
         # Check first if there is a perfect match in the address
