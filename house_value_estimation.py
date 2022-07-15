@@ -245,7 +245,14 @@ class Property:
 
     def check_features(self):
         # Query data for specified property
-        # Use the epc df and filter down to just the given postcode
+        # First check the merged db
+        cur = self.return_cursor()
+        #Will need to find a better way of matching eventually...
+        cur.execute(f"select * from merged where address = {self.full_address}")
+        features_result = cur.fetchall()
+        # If there are no results, then move on to the Postcode proxy
+        if features_result == 0:
+
         postcode_epc_df = self.epc_table[self.epc_table['postcode']==self.postcode]
         # Parse through the address field to see if the house number/name is in the address field
         # Check first if there is a perfect match in the address
