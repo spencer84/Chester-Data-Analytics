@@ -249,27 +249,11 @@ class Property:
         cur = self.return_cursor()
         #Will need to find a better way of matching eventually...
         cur.execute(f"select * from merged where address = {self.full_address}")
-        features_result = cur.fetchall()
+        prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
-        if features_result == 0:
+        if prop_features == 0:
             cur.execute(f"select * from avg_var_table where postcode = {self.postcode}")
             features_result = cur.fetchall()
-        postcode_epc_df = self.epc_table[self.epc_table['postcode']==self.postcode]
-        # Parse through the address field to see if the house number/name is in the address field
-        # Check first if there is a perfect match in the address
-        prop_epc = postcode_epc_df[postcode_epc_df['address']==self.number]
-        if len(prop_epc) >= 1:
-            prop_features = np.array(prop_epc['total_floor_area'][0])
-        else:
-            # Parse through the dataframe looking for where the PAON appears
-            address_matched = False
-            for index, row in postcode_epc_df.iterrows():
-                if self.number in row['address']:
-                    prop_features = np.array(postcode_epc_df['total_floor_area'][index])
-                    address_matched = True
-                    break
-            if not address_matched:
-                prop_features = self.create_synthetic_features()
         self.prop_features = prop_features.reshape(-1,1)
 
 
