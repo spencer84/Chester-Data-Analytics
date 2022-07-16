@@ -251,9 +251,12 @@ class Property:
         cur.execute(f"select * from merged where address = {self.full_address}")
         prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
-        if prop_features == 0:
+        if len(prop_features) == 0:
             cur.execute(f"select * from avg_var_table where postcode = {self.postcode}")
             features_result = cur.fetchall()
+        # Otherwise, take the first result (sort by date??)
+        elif len(prop_features) > 0:
+            prop_features = prop_features[0]
         self.prop_features = prop_features.reshape(-1,1)
 
 
