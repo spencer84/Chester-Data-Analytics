@@ -14,11 +14,11 @@ def predict():
     if request.method == 'POST':
         postcode = request.form['Postcode']
         return """<p> postcode </p>"""
-    else:
+    elif request.method == 'GET':
         return render_template('predict.html')
 
 
-# @app.route('/result.html')
+# @app.route('/result/<postcode>')
 
 
 if __name__ == '__main__':
