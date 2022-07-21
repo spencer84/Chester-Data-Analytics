@@ -282,32 +282,32 @@ class Property:
 
 
 
-# Identify property for estimate
-prop = Property()
-prop.postcode = 'CH1 1SD'
-prop.postcode_district = 'CH1'
-prop.number = '21'
-prop.town = 'CHESTER'
-prop.get_input()
-check_postcode_start = time.time()
-prop.check_postcode_data(request_input=False)
-check_postcode_end = time.time()-check_postcode_start
-print(f"Time to run Check Postcode Data:{check_postcode_end}")
-prop.check_for_model()
-# # cur = prop.return_cursor()
-# create_merged_start = time.time()
-# prop.create_merged_table()
-# create_merged_end = time.time()-create_merged_start
-# print(f"Time to run Create Merged Table:{create_merged_end}")
-# check_features_start = time.time()
-# prop.check_features()
-# check_features_end = time.time() - check_features_start
-# print(f"Time to Check Features:{check_features_end}")
-print(prop.prop_features)
-# prop.create_model()
-prop.predict()
-print("Pickling the model")
-prop.model_to_pickle()
+# # Identify property for estimate
+# prop = Property()
+# prop.postcode = 'CH1 1SD'
+# prop.postcode_district = 'CH1'
+# prop.number = '21'
+# prop.town = 'CHESTER'
+# prop.get_input()
+# check_postcode_start = time.time()
+# prop.check_postcode_data(request_input=False)
+# check_postcode_end = time.time()-check_postcode_start
+# print(f"Time to run Check Postcode Data:{check_postcode_end}")
+# prop.check_for_model()
+# # # cur = prop.return_cursor()
+# # create_merged_start = time.time()
+# # prop.create_merged_table()
+# # create_merged_end = time.time()-create_merged_start
+# # print(f"Time to run Create Merged Table:{create_merged_end}")
+# # check_features_start = time.time()
+# # prop.check_features()
+# # check_features_end = time.time() - check_features_start
+# # print(f"Time to Check Features:{check_features_end}")
+# print(prop.prop_features)
+# # prop.create_model()
+# prop.predict()
+# print("Pickling the model")
+# prop.model_to_pickle()
 
 # If model is created for each postcode, should we create a separate model class inherited from a postcode class?
 # print(prop.merged_table.head())

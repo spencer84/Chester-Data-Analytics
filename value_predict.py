@@ -1,5 +1,5 @@
 from flask import Flask, redirect, request, url_for, render_template
-from house_value_estimation  import Property
+from house_value_estimation import Property, get_postcode_district
 # import house_value_estimation
 app = Flask(__name__)
 
@@ -20,6 +20,7 @@ def predict():
         prop.postcode = postcode
         prop.paon = paon
         prop.town = town
+        prop.postcode_district = get_postcode_district(prop.postcode)
         # Calculate value
         if prop.validate_postcode():
             prop.check_for_model()
