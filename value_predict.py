@@ -12,8 +12,9 @@ def home():
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     if request.method == 'POST':
-        postcode = request.form['Postcode']
-        return """<p> postcode </p>"""
+        postcode = request.form.get('postcode')
+        paon = request.form.get('paon')
+        return f"""<p> {postcode} </p> <"""
     elif request.method == 'GET':
         return render_template('predict.html')
 
