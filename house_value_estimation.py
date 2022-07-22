@@ -248,7 +248,10 @@ class Property:
         # First check the merged db
         cur = self.return_cursor()
         #Will need to find a better way of matching eventually...
-        cur.execute(f"select * from merged where address = {self.full_address}")
+        if self.full_address is not None:
+            cur.execute(f"select * from merged where address = {self.full_address}")
+        elif self.full_address is None:
+            cur.execute(f"select * from merged where postcode = {self.postcode} and paon = {self.number}")
         prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
         if len(prop_features) == 0:
