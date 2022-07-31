@@ -249,13 +249,13 @@ class Property:
         cur = self.return_cursor()
         #Will need to find a better way of matching eventually...
         if self.full_address is not None:
-            cur.execute(f"select * from merged where address = {self.full_address}")
+            cur.execute(f"select * from merged where address = '{self.full_address}'")
         elif self.full_address is None:
-            cur.execute(f"select * from merged where postcode = {self.postcode} and paon = {self.number}")
+            cur.execute(f"select * from merged where postcode = '{self.postcode}' and paon = '{self.number}'")
         prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
         if len(prop_features) == 0:
-            cur.execute(f"select * from avg_var_table where postcode = {self.postcode}")
+            cur.execute(f"select * from avg_var_table where postcode = '{self.postcode}'")
             features_result = cur.fetchall()
         # Otherwise, take the first result (sort by date??)
         elif len(prop_features) > 0:
