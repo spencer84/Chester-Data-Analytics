@@ -206,7 +206,7 @@ class Property:
             with open(file_path, 'rb') as model_dir:
                 self.model = pickle.load(model_dir)
                 self.check_features()
-        except FileNotFoundError and EOFError:
+        except (FileNotFoundError, EOFError) as error:
             # If the pickle doesn't exist for that postcode district, then go through the steps to create a new model
             self.create_model()
 
