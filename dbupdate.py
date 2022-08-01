@@ -83,6 +83,8 @@ def create_postcode_district_features(cur):
     approximation.
     :param cur: Cursor object for database
     """
+    print("Creating table of postcode averages...")
+    cur.execute("""DROP TABLE IF EXISTS postcode_avg_features;""")
     cur.execute("""create table postcode_avg_features as 
     SELECT postcode, avg(total_floor_area) as avg_floor_area from epc GROUP BY postcode;
     """)
@@ -142,4 +144,5 @@ postcode_areas = ['CH1']
 if __name__ == "__main__":
     conn = sqlite3.connect('cda.db')
     update_db(conn, postcode_areas, towns)
+    create_postcode_district_features(conn.cursor())
     conn.commit()

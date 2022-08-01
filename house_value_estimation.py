@@ -255,7 +255,7 @@ class Property:
         prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
         if len(prop_features) == 0:
-            cur.execute(f"select * from avg_var_table where postcode = '{self.postcode}'")
+            cur.execute(f"select * from postcode_avg_features where postcode = '{self.postcode}'")
             features_result = cur.fetchall()
         # Otherwise, take the first result (sort by date??)
         elif len(prop_features) > 0:
