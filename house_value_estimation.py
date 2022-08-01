@@ -107,7 +107,12 @@ class Property:
         """
         url = 'https://api.postcodes.io/postcodes/' + self.postcode + '/validate'
         request = requests.get(url)
-        return request.json()['result']
+        if request.status_code == 200:
+            self.postcode = request.json()['result']['postcode']
+            return True
+        else:
+            return False
+
 
     def check_postcode_data(self, request_input = True):
         """
