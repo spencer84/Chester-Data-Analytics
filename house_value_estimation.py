@@ -105,7 +105,7 @@ class Property:
         Check the user-provided postcode and determine if it is a valid UK postcode
         :return: Boolean value, whether postcode is valid or not
         """
-        url = 'https://api.postcodes.io/postcodes/' + self.postcode + '/validate'
+        url = 'https://api.postcodes.io/postcodes/' + self.postcode
         request = requests.get(url)
         if request.status_code == 200:
             self.postcode = request.json()['result']['postcode']
