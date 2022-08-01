@@ -48,7 +48,7 @@ def update_land(cur, town, max_days=7):
     else:
         land_age = datetime.datetime.today() - datetime.datetime.fromisoformat(max_land_reg[0][0])
         if land_age.days >= max_days:
-            print("Land Registry data is more than 1 week old. Updating records...")
+            print(f"Land Registry data is more than {max_days} days old. Updating records...")
             land_data.get_full_price_paid()
             print(f"Land Registry data updated for {town}.")
 
@@ -144,5 +144,4 @@ postcode_areas = ['CH1']
 if __name__ == "__main__":
     conn = sqlite3.connect('cda.db')
     update_db(conn, postcode_areas, towns)
-    create_postcode_district_features(conn.cursor())
     conn.commit()
