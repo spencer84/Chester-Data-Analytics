@@ -256,10 +256,13 @@ class Property:
         # If there are no results, then move on to the Postcode proxy
         if len(prop_features) == 0:
             cur.execute(f"select * from postcode_avg_features where postcode = '{self.postcode}'")
-            features_result = cur.fetchall()
+            prop_features = cur.fetchall()
         # Otherwise, take the first result (sort by date??)
         elif len(prop_features) > 0:
             prop_features = prop_features[0]
+        # Ensure results fully converted to a NumPy array
+        self.prop_features = np.array(prop_features)
+        print(self.prop_features)
         self.prop_features = prop_features.reshape(-1,1)
 
 

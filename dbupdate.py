@@ -139,7 +139,7 @@ def update_db(conn: object, postcode_areas: object, towns: object) -> object:
 
 towns = ['CHESTER']
 
-postcode_areas = ['CH1']
+postcode_areas = ['CH1','CH2']
 
 if __name__ == "__main__":
     conn = sqlite3.connect('cda.db')
