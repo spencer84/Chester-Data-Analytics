@@ -253,18 +253,19 @@ class Property:
         # First check the merged db
         cur = self.return_cursor()
         #Will need to find a better way of matching eventually...
+        features = 'total_floor_area'
         if self.full_address is not None:
-            cur.execute(f"select * from merged where address = '{self.full_address}'")
+            cur.execute(f"select {features} from merged where address = '{self.full_address}'")
         elif self.full_address is None:
-            cur.execute(f"select * from merged where postcode = '{self.postcode}' and paon = '{self.number}'")
+            cur.execute(f"select {features} from merged where postcode = '{self.postcode}' and paon = '{self.number}'")
         prop_features = cur.fetchall()
         # If there are no results, then move on to the Postcode proxy
         if len(prop_features) == 0:
-            cur.execute(f"select * from postcode_avg_features where postcode = '{self.postcode}'")
-            prop_features = cur.fetchall()
+            cur.execute(f"select avg_floor_area from postcode_avg_features where postcode = '{self.postcode}'")
+            prop_features = cur.fetchall()[0][0]
         # Otherwise, take the first result (sort by date??)
         elif len(prop_features) > 0:
-            prop_features = prop_features[0]
+            prop_features = prop_features[0][0]
         # Ensure results fully converted to a NumPy array
         self.prop_features = np.array(prop_features)
         print(self.prop_features)
