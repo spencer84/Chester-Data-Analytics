@@ -267,9 +267,8 @@ class Property:
         elif len(prop_features) > 0:
             prop_features = prop_features[0][0]
         # Ensure results fully converted to a NumPy array
-        self.prop_features = np.array(prop_features)
-        print(self.prop_features)
-        self.prop_features = prop_features.reshape(-1,1)
+        self.prop_features = np.array(prop_features).reshape(-1,1)
+
 
 
     def create_synthetic_features(self):
