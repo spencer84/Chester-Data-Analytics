@@ -18,7 +18,7 @@ def predict():
         town = request.form.get('town')
         prop = Property()
         prop.postcode = postcode
-        prop.paon = paon
+        prop.number = paon
         prop.town = town
         prop.postcode_district = get_postcode_district(prop.postcode)
         # Calculate value
