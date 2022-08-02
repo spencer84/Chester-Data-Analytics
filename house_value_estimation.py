@@ -269,8 +269,6 @@ class Property:
         # Ensure results fully converted to a NumPy array
         self.prop_features = np.array(prop_features).reshape(-1,1)
 
-
-
     def create_synthetic_features(self):
         """The EPC dataset will not contain all properties. Where an EPC record is not available, a KNN model will be
         used to extrapolate features based on neighbours.
@@ -290,7 +288,7 @@ class Property:
     def predict(self):
         self.predicted_value = self.model.predict(self.prop_features)
         print(self.predicted_value)
-
+        return self.predicted_value
 
 
 # # Identify property for estimate
