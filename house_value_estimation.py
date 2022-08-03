@@ -286,9 +286,9 @@ class Property:
         return synth_features
 
     def predict(self):
-        self.predicted_value = self.model.predict(self.prop_features)
+        self.predicted_value = self.model.predict(self.prop_features)[0][0]
         print(self.predicted_value)
-        return self.predicted_value
+        return int(self.predicted_value)
 
 
 # # Identify property for estimate
