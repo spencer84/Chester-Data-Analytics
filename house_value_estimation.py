@@ -124,8 +124,6 @@ class Property:
         print('Checking postcode data...')
         con = sqlite3.connect(self.db)
         cur = con.cursor()
-        cur.execute("SELECT * FROM data_log WHERE postcode_district =? ", (self.postcode_district,))
-        results = cur.fetchall()
         # Find most recent EPC records
         cur.execute("""SELECT MAX(date) FROM (SELECT * FROM data_log WHERE postcode_district = :postcode  
         AND data_table = 'epc' )""", {"postcode": self.postcode_district})
