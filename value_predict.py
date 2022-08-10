@@ -26,10 +26,14 @@ def predict():
             prop.check_for_model()
             prop.check_features()
             value = prop.predict()
+            model_details = prop.model_perf
         else:
             return """<p> Postcode not valid! </p> <a <href='/predict'> Try again </a>. """
 
-        return f"""<p> The predicted value of {paon} {postcode} is £{value}</p> <"""
+        return f"""<p> The predicted value of {paon} {postcode} is £{value}</p> 
+        <p> Model Type: Linear Regression </p>
+        <p> Coefficients: {model_details['Coefficients']} </p>
+        <p> Mean squared error: {model_details['Mean squared error']}  </p>"""
     elif request.method == 'GET':
         return render_template('predict.html')
 
