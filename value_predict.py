@@ -33,7 +33,8 @@ def predict():
         return f"""<p> The predicted value of {paon} {postcode} is £{value}</p> 
         <p> Model Type: Linear Regression </p>
         <p> Coefficients: {model_details['Coefficients']} </p>
-        <p> Mean squared error: {model_details['Mean squared error']}  </p>"""
+        <p> Mean squared error: {model_details['Mean squared error']}  </p>
+        <a href = '/predict'> Estimate another property </a> """
     elif request.method == 'GET':
         return render_template('predict.html')
 
