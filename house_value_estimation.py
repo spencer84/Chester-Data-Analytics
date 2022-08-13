@@ -204,7 +204,11 @@ class Property:
     # Remove Null values?
     def check_for_model(self):
         """Identify whether a model exists for a given postcode district"""
+        ## How do we know if model is up to date?
+        ## Need mechanism to check creation date and ensure regular update
         try:
+            if self.postcode_district == None:
+                self.postcode_district = get_postcode_district(self.postcode)
             file_path = './Models/' + self.postcode_district + '.pickle'
             with open(file_path, 'rb') as model_dir:
                 self.model = pickle.load(model_dir)
