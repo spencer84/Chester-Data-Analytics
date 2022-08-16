@@ -243,6 +243,8 @@ class Property:
             "MAPE": mean_absolute_percentage_error(y_test, y_pred)
         }
         print("Model created")
+        # After creating the model, save as pickle
+        self.model_to_pickle()
 
     def model_to_pickle(self):
         """Write the created model to a pickle file"""
